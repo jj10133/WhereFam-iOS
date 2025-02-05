@@ -8,3 +8,4 @@ Info.plist
 .DS_Store
 .DS_Store?
 .package-lock.json
+.env
