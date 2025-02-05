@@ -1,3 +1,9 @@
+
 targets:
   App:
-    dependencies: []
+    dependencies:
+      - framework: sodium-native.4.3.1.xcframework
+      - framework: udx-native.1.17.2.xcframework
+      - framework: bare-fs.4.0.1.xcframework
+      - framework: bare-os.3.3.0.xcframework
+

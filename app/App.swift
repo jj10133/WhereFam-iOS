@@ -2,56 +2,37 @@ import SwiftUI
 
 @main
 struct App: SwiftUI.App {
-  @StateObject private var worklet = Worklet()
-  @Environment(\.scenePhase) private var scenePhase
-
-  var body: some Scene {
-    WindowGroup {
-      ContentView()
-        .onAppear {
-          worklet.start()
+    @StateObject private var worklet = Worklet()
+    @StateObject private var ipc = IPC()
+    @Environment(\.scenePhase) private var scenePhase
+    
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .onAppear {
+                    worklet.start()
+                    
+                    if worklet.ipc != nil {
+                        ipc.configure(with: worklet.ipc!)
+                        ipc.listenForMessages()
+                    }
+                }
+                .onDisappear {
+                    worklet.terminate()
+                }
         }
-        .onDisappear {
-          worklet.terminate()
+        .environmentObject(ipc)
+        .modelContainer(for: People.self)
+        .onChange(of: scenePhase) { phase in
+            switch phase {
+            case .background:
+                worklet.suspend()
+            case .active:
+                worklet.resume()
+            default:
+                break
+            }
         }
     }
-    .onChange(of: scenePhase) { phase in
-      switch phase {
-      case .background:
-        worklet.suspend()
-      case .active:
-        worklet.resume()
-      default:
-        break
-      }
-    }
-  }
-}
-
-struct ContentView: View {
-  var body: some View {
-    Text("Hello SwiftUI!")
-  }
-}
-
-class Worklet: ObservableObject {
-  private var worklet: BareWorklet?
-
-  func start() {
-    worklet = BareWorklet(configuration: nil)
-
-    worklet?.start("app", ofType: "bundle", arguments: [])
-  }
-
-  func suspend() {
-    worklet?.suspend()
-  }
-
-  func resume() {
-    worklet?.resume()
-  }
-
-  func terminate() {
-    worklet?.terminate()
-  }
 }
