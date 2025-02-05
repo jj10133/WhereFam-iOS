@@ -21,5 +21,13 @@
     "bare-pack": "^1.2.1",
     "prettier": "^3.4.2",
     "prettier-config-standard": "^7.0.0"
+  },
+  "dependencies": {
+    "b4a": "^1.6.7",
+    "hyperbee": "^2.21.2",
+    "hypercore": "^10.38.2",
+    "hyperswarm": "^4.8.4",
+    "sodium-native": "^4.3.1",
+    "udx-native": "^1.17.2"
   }
 }

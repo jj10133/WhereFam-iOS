@@ -5,3 +5,6 @@ Info.plist
 *.bundle
 *.zip
 *.xcodeproj
+.DS_Store
+.DS_Store?
+.package-lock.json

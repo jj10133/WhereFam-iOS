@@ -1,26 +1,75 @@
-name: App
+name: WhereFam
 include:
   - app/addons/addons.yml
+
+packages:
+  ConcentricOnboarding:
+    url: https://github.com/exyte/ConcentricOnboarding.git
+    from: 1.0.6
+
 targets:
   App:
     type: application
     platform: iOS
-    deploymentTarget: 14.0
+    deploymentTarget: 17
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: to.holepunch.bare.ios
+        PRODUCT_BUNDLE_IDENTIFIER: com.wherefam.ios
         SWIFT_VERSION: 5.0
         SWIFT_OBJC_BRIDGING_HEADER: app/App-Bridging-Header.h
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
+        DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
+        IPHONEOS_DEPLOYMENT_TARGET: '17'
+
     info:
       path: app/Info.plist
+      properties:
+        NSLocationWhenInUseUsageDescription: We would like to access location for sharing to other members
+        NSLocationAlwaysAndWhenInUseUsageDescription: We would like to access location for sharing to other members
+        UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
+    
+    appIcon: app/Assets.xcassets/AppIcon.appIconset
     dependencies:
+      - package: ConcentricOnboarding
       - framework: app/frameworks/BareKit.xcframework
+
     sources:
       - path: app/App.swift
       - path: app/App-Bridging-Header.h
       - path: app/app.js
       - path: app/app.bundle
-        optional: true
+      - path: app/Assets.xcassets
+      - path: app/Worklet.swift
+      
+      - path: app/Core/Root/ContentView.swift
+        group: app/Core/Root
+      
+      - path: app/Core/Home/View/AddMemberView.swift
+        group: app/Core/Home/View
+      - path: app/Core/Home/View/HomeView.swift
+      - path: app/Core/Home/View/ProvideFeedbackView.swift
+      - path: app/Core/Home/View/ShareIDView.swift
+      
+      - path: app/Core/Onboarding/View/FifthPageView.swift
+        group: app/Core/Onboarding/View
+      - path: app/Core/Onboarding/View/FirstPageView.swift
+      - path: app/Core/Onboarding/View/FourthPageView.swift
+      - path: app/Core/Onboarding/View/SecondPageView.swift
+      - path: app/Core/Onboarding/View/SixthPageView.swift
+      - path: app/Core/Onboarding/View/ThirdPageView.swift
+
+      - path: app/Core/IPC/IPC.swift
+        group: app/Core/IPC
+      
+      - path: app/Core/
+
+      - path: app/Manager/LocationManager.swift
+        group: app/Manager
+      
+      - path: app/Models/People.swift
+        group: app/Models
+
+
     scheme:
       preActions:
         - name: Link
