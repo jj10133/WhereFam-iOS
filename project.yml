@@ -44,7 +44,7 @@ targets:
       - path: app/Core/Root/ContentView.swift
         group: app/Core/Root
       
-      - path: app/Core/Home/View/AddMemberView.swift
+      - path: app/Core/Home/View/PeopleView.swift
         group: app/Core/Home/View
       - path: app/Core/Home/View/HomeView.swift
       - path: app/Core/Home/View/ProvideFeedbackView.swift
