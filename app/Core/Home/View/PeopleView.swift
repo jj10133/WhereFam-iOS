@@ -58,6 +58,7 @@ struct PeopleView: View {
             .presentationDetents([.medium, .large])
         }
     }
+
     
     private func addPeerToSwarm() {
         Task {

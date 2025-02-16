@@ -1,6 +1,7 @@
-# Bare on iOS
+# WhereFam on iOS
 
-Example of embedding Bare in an iOS application using <https://github.com/holepunchto/bare-kit>.
+Find friends and family in realtime globally,securely and privately with no middle man!!
+
 
 ## Building
 

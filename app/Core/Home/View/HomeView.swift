@@ -13,7 +13,7 @@ struct HomeView: View {
     @EnvironmentObject var ipc: IPC
     @Environment(\.modelContext) private var modelContext
     @Query var people: [People]
-
+    
     @Namespace private var mapScope
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     
@@ -23,7 +23,6 @@ struct HomeView: View {
     
     @State private var timer: Timer? = nil
     
-    private var locationManager = LocationManager.shared
     private let appUrl = "https://app.com"
     
     var body: some View {
@@ -38,8 +37,14 @@ struct HomeView: View {
                 }
             }
         }
-        .onAppear(perform: onAppear)
+        .onAppear {
+            onAppear()
+            LocationManager.shared.requestLocation()
+        }
         .onDisappear(perform: stopLocationUpdateTimer)
+        .task {
+            //joinPeersFromDatabase() // Uncomment if needed
+        }
         .sheet(item: $selectedOption) { option in
             sheetView(for: option)
         }
@@ -50,9 +55,8 @@ struct HomeView: View {
             await startHyperswarm()
             getPublicKey()
             ipc.modelContext = modelContext
-            //joinPeersFromDatabase() // Uncomment if needed
+            startLocationUpdateTimer()
         }
-        startLocationUpdateTimer()
     }
     
     private func startHyperswarm() async {
@@ -96,8 +100,8 @@ struct HomeView: View {
                 "data": [
                     "id": ipc.publicKey,
                     "name": UserDefaults.standard.string(forKey: "userName") ?? "",
-                    "latitude": locationManager.userLocation?.coordinate.latitude,
-                    "longitude": locationManager.userLocation?.coordinate.longitude
+                    "latitude": LocationManager.shared.userLocation?.coordinate.latitude,
+                    "longitude": LocationManager.shared.userLocation?.coordinate.longitude
                 ]
             ]
             print("Sending location update")
@@ -160,7 +164,14 @@ struct PersonAnnotationView: View {
     var person: LocationUpdates
     
     var body: some View {
-        VStack {
+        VStack(spacing: 5) {
+            Circle()
+                .frame(width: 40, height: 40)
+                .foregroundColor(Color.blue)
+                .overlay(Text(person.name?.prefix(1) ?? "?")
+                    .font(.headline)
+                    .foregroundColor(.white))
+            
             Text(person.name ?? "")
                 .font(.caption)
                 .foregroundColor(.white)
@@ -169,6 +180,9 @@ struct PersonAnnotationView: View {
                 .shadow(radius: 3)
                 .scaleEffect(0.9)
         }
+        .padding(5)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .shadow(radius: 5)
     }
 }
 

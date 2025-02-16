@@ -22,7 +22,7 @@ class Worklet: ObservableObject {
     }
     
     func suspend() {
-        worklet?.suspend()
+//        worklet?.suspend()
     }
     
     func resume() {
@@ -56,7 +56,6 @@ extension BareIPC {
     
     func readStream() -> AsyncStream<Data> {
         return AsyncStream { continuation in
-//            DispatchQueue.global(qos: .background).async { test this out as well 
             if let data = self.read() {
                 continuation.yield(data)
             }
@@ -66,11 +65,6 @@ extension BareIPC {
                     continuation.yield(data)
                 }
             }
-            
-            //Check after uncommenting if we close the stream
-//            if self.readable == nil {
-//                continuation.finish()
-//            }
         }
     }
 }

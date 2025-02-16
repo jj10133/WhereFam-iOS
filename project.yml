@@ -27,7 +27,9 @@ targets:
         NSLocationWhenInUseUsageDescription: We would like to access location for sharing to other members
         NSLocationAlwaysAndWhenInUseUsageDescription: We would like to access location for sharing to other members
         UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
-    
+        UIBackgroundModes:
+          - location
+
     appIcon: app/Assets.xcassets/AppIcon.appIconset
     dependencies:
       - package: ConcentricOnboarding
@@ -40,16 +42,16 @@ targets:
       - path: app/app.bundle
       - path: app/Assets.xcassets
       - path: app/Worklet.swift
-      
+
       - path: app/Core/Root/ContentView.swift
         group: app/Core/Root
-      
+
       - path: app/Core/Home/View/PeopleView.swift
         group: app/Core/Home/View
       - path: app/Core/Home/View/HomeView.swift
       - path: app/Core/Home/View/ProvideFeedbackView.swift
       - path: app/Core/Home/View/ShareIDView.swift
-      
+
       - path: app/Core/Onboarding/View/FifthPageView.swift
         group: app/Core/Onboarding/View
       - path: app/Core/Onboarding/View/FirstPageView.swift
@@ -60,15 +62,14 @@ targets:
 
       - path: app/Core/IPC/IPC.swift
         group: app/Core/IPC
-      
+
       - path: app/Core/
 
       - path: app/Manager/LocationManager.swift
         group: app/Manager
-      
+
       - path: app/Models/People.swift
         group: app/Models
-
 
     scheme:
       preActions:

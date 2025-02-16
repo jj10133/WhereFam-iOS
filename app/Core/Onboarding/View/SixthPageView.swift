@@ -9,32 +9,21 @@ import SwiftUI
 
 
 struct SixthPageView: View {
-//    @Environment(\.requestReview) var requestReview
     var body: some View {
         VStack {
-            Text("You're all set, User!")
+            Text("You're all set, \(UserDefaults.standard.string(forKey: "userName") ?? "")")
                 .font(.title)
                 .fontWeight(.bold)
+                .foregroundColor(.white)
                 .padding()
             
             Text("You can start tracking your loved ones and connect with them!")
                 .font(.title2)
                 .multilineTextAlignment(.center)
+                .foregroundColor(.white)
                 .padding()
-            
-            Spacer()
-            
-            //                    NavigationLink(destination: RatingRequestView()) {
-            //                        Text("Leave a rating to help us improve!")
-            //                            .font(.title2)
-            //                            .foregroundColor(.blue)
-            //                            .padding()
-            //                    }
         }
         .padding()
-        .onAppear {
-            
-        }
     }
 }
 

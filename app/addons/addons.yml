@@ -2,8 +2,12 @@
 targets:
   App:
     dependencies:
-      - framework: sodium-native.4.3.1.xcframework
-      - framework: udx-native.1.17.2.xcframework
+      - framework: sodium-native.4.3.2.xcframework
+      - framework: udx-native.1.17.4.xcframework
       - framework: bare-fs.4.0.1.xcframework
-      - framework: bare-os.3.3.0.xcframework
+      - framework: bare-os.3.4.0.xcframework
+      - framework: crc-native.1.1.6.xcframework
+      - framework: fs-native-extensions.1.3.3.xcframework
+      - framework: quickbit-native.2.3.5.xcframework
+      - framework: simdle-native.1.3.5.xcframework
 
