@@ -6,6 +6,9 @@ packages:
   ConcentricOnboarding:
     url: https://github.com/exyte/ConcentricOnboarding.git
     from: 1.0.6
+  BareKit:
+    url: https://github.com/holepunchto/bare-kit-swift
+    branch: main
 
 targets:
   App:
@@ -16,11 +19,9 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wherefam.ios
         SWIFT_VERSION: 5.0
-        SWIFT_OBJC_BRIDGING_HEADER: app/App-Bridging-Header.h
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
-        IPHONEOS_DEPLOYMENT_TARGET: '17'
-
+        # IPHONEOS_DEPLOYMENT_TARGET: '17'
     info:
       path: app/Info.plist
       properties:
@@ -29,19 +30,30 @@ targets:
         UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
         UIBackgroundModes:
           - location
+    entitlements:
+      path: app/App.entitlements
+      properties:
+        aps-environment: development
+        com.apple.security.application-groups:
+          - group.to.holepunch.bare.ios
 
     appIcon: app/Assets.xcassets/AppIcon.appIconset
     dependencies:
       - package: ConcentricOnboarding
+      - package: BareKit
       - framework: app/frameworks/BareKit.xcframework
+      - target: NotificationServiceExtension
 
     sources:
       - path: app/App.swift
-      - path: app/App-Bridging-Header.h
+      - path: app/AppDelegate.swift
       - path: app/app.js
+      - path: app/push.js
       - path: app/app.bundle
       - path: app/Assets.xcassets
-      - path: app/Worklet.swift
+      - path: app/Worker.swift
+      - path: app/NotificationService.swift
+      - path: app/push.bundle
 
       - path: app/Core/Root/ContentView.swift
         group: app/Core/Root
@@ -60,7 +72,7 @@ targets:
       - path: app/Core/Onboarding/View/SixthPageView.swift
       - path: app/Core/Onboarding/View/ThirdPageView.swift
 
-      - path: app/Core/IPC/IPC.swift
+      - path: app/Core/IPC/IPCViewModel.swift
         group: app/Core/IPC
 
       - path: app/Core/
@@ -75,7 +87,7 @@ targets:
       preActions:
         - name: Link
           script: |
-            ${PWD}/node_modules/.bin/bare-link \
+            PATH="${PATH}" "${PWD}/node_modules/.bin/bare-link" \
               --target ios-arm64 \
               --target ios-arm64-simulator \
               --target ios-x64-simulator \
@@ -83,7 +95,7 @@ targets:
               ${PWD}
         - name: Pack
           script: |
-            ${PWD}/node_modules/.bin/bare-pack \
+            PATH="${PATH}" "${PWD}/node_modules/.bin/bare-pack" \
               --target ios-arm64 \
               --target ios-arm64-simulator \
               --target ios-x64-simulator \
@@ -91,3 +103,40 @@ targets:
               --base ${PWD} \
               --out ${PWD}/app/app.bundle \
               ${PWD}/app/app.js
+            PATH="${PATH}" "${PWD}/node_modules/.bin/bare-pack" \
+              --target ios-arm64 \
+              --target ios-arm64-simulator \
+              --target ios-x64-simulator \
+              --linked \
+              --base ${PWD} \
+              --out ${PWD}/app/push.bundle \
+              ${PWD}/app/push.js
+
+  NotificationServiceExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: 17.0
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wherefam.ios.NotificationServiceExtension
+        SWIFT_VERSION: 5.0
+    info:
+      path: app/NotificationServiceExtension.Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: NotificationServiceExtension.NotificationService
+    entitlements:
+      path: app/NotificationServiceExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.to.holepunch.bare.ios
+        com.apple.developer.usernotifications.filtering: true
+    dependencies:
+      - framework: app/frameworks/BareKit.xcframework
+      - package: BareKit
+    sources:
+      - path: app/NotificationService.swift
+      - path: app/push.js
+      - path: app/push.bundle
+        optional: true

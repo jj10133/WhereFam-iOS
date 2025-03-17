@@ -10,7 +10,7 @@ import SwiftData
 import MapKit
 
 struct HomeView: View {
-    @EnvironmentObject var ipc: IPC
+    @EnvironmentObject var ipcViewModel: IPCViewModel
     @Environment(\.modelContext) private var modelContext
     @Query var people: [People]
     
@@ -54,7 +54,7 @@ struct HomeView: View {
         Task {
             await startHyperswarm()
             getPublicKey()
-            ipc.modelContext = modelContext
+            ipcViewModel.modelContext = modelContext
             startLocationUpdateTimer()
         }
     }
@@ -65,7 +65,7 @@ struct HomeView: View {
             "action": "startHyperswarm",
             "data": directory.path()
         ]
-        await ipc.writeToIPCAsync(message: message)
+        await ipcViewModel.writeToIPC(message: message)
     }
     
     private func startLocationUpdateTimer() {
@@ -88,7 +88,7 @@ struct HomeView: View {
                 ]
                 
                 print(member.id)
-                await ipc.writeToIPCAsync(message: message)
+                await ipcViewModel.writeToIPC(message: message)
             }
         }
     }
@@ -98,25 +98,25 @@ struct HomeView: View {
             let message: [String: Any] = [
                 "action": "locationUpdate",
                 "data": [
-                    "id": ipc.publicKey,
+                    "id": ipcViewModel.publicKey,
                     "name": UserDefaults.standard.string(forKey: "userName") ?? "",
                     "latitude": LocationManager.shared.userLocation?.coordinate.latitude,
                     "longitude": LocationManager.shared.userLocation?.coordinate.longitude
                 ]
             ]
             print("Sending location update")
-            await ipc.writeToIPCAsync(message: message)
+            await ipcViewModel.writeToIPC(message: message)
         }
     }
     
     private func getPublicKey() {
         Task {
-            if ipc.publicKey.isEmpty {
+            if ipcViewModel.publicKey.isEmpty {
                 let message: [String: Any] = [
                     "action": "requestPublicKey",
                     "data": [:]
                 ]
-                await ipc.writeToIPCAsync(message: message)
+                await ipcViewModel.writeToIPC(message: message)
             }
         }
     }
@@ -134,7 +134,7 @@ struct HomeView: View {
 }
 
 struct MapView: View {
-    @EnvironmentObject var ipc: IPC
+    @EnvironmentObject var ipc: IPCViewModel
     @Binding var position: MapCameraPosition
     var mapScope: Namespace.ID
     
@@ -243,5 +243,5 @@ enum MenuOption: Identifiable {
 
 #Preview {
     HomeView()
-        .environmentObject(IPC())
+        .environmentObject(IPCViewModel())
 }

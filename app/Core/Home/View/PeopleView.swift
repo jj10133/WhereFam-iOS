@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PeopleView: View {
-    @EnvironmentObject var ipc: IPC
+    @EnvironmentObject var ipcViewModel: IPCViewModel
     @State private var searchText = ""
     @State private var newMemberID: String = ""
     @State private var showingAddMemberAlert = false
@@ -67,7 +67,7 @@ struct PeopleView: View {
                 "data": self.newMemberID
             ]
             
-            await ipc.writeToIPCAsync(message: message)
+            await ipcViewModel.writeToIPC(message: message)
             self.newMemberID = ""
         }
     }
@@ -90,5 +90,5 @@ struct PeopleView: View {
 
 #Preview {
     PeopleView()
-        .environmentObject(IPC())
+        .environmentObject(IPCViewModel())
 }

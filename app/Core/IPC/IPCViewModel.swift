@@ -5,28 +5,33 @@
 //  Created by joker on 2025-01-30.
 //
 
+import Foundation
+import BareKit
 import SwiftData
 
-class IPC: ObservableObject {
-    private var ipc: BareIPC?
+class IPCViewModel: ObservableObject {
+    var ipc: IPC?
     var modelContext: ModelContext?
     
     @Published var publicKey: String = ""
     @Published var updatedPeopleLocation: [String: LocationUpdates] = [:]
     
-    func configure(with ipc: BareIPC) {
+    func configure(with ipc: IPC?) {
         self.ipc = ipc
     }
     
-    func listenForMessages() {
-        Task {
-            if let ipc = ipc {
-                for await message in ipc.readStream() {
-                    processIncomingMessage(message)
-                }
-            } else {
-                print("IPC or readStream is nil.")
-            }
+    func readFromIPC() async {
+        for await chunck in ipc! {
+            processIncomingMessage(chunck)
+        }
+    }
+    
+    func writeToIPC(message: [String: Any]) async {
+        do {
+            let data = try JSONSerialization.data(withJSONObject: message, options: .prettyPrinted)
+            await ipc?.write(data: data)
+        } catch(let error) {
+            print("Debug: Error writing to IPC: \(error.localizedDescription)")
         }
     }
     
@@ -93,19 +98,10 @@ class IPC: ObservableObject {
             print("Error occurred: \(error.localizedDescription)")
         }
         
-        
         // TODO: Need to save but swiftdata is not working as expected to render the UI
         // Did try actor approach not working!! Help needed
     }
     
-    func writeToIPCAsync(message: [String: Any]) async {
-        do {
-            let data = try JSONSerialization.data(withJSONObject: message, options: .prettyPrinted)
-            _ = try await ipc?.writeAsync(data)
-        } catch(let error) {
-            print("Debug: Error writing to IPC: \(error.localizedDescription)")
-        }
-    }
 }
 
 

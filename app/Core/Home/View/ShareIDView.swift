@@ -9,7 +9,7 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 
 struct ShareIDView: View {
-    @EnvironmentObject var ipc: IPC
+    @EnvironmentObject var ipcViewModel: IPCViewModel
     @State private var qrCodeImage: UIImage?
     
     var body: some View {
@@ -26,13 +26,26 @@ struct ShareIDView: View {
             }
         }
         .onAppear {
-            generateQRCode(from: ipc.publicKey)
+            getPublicKey()
+            generateQRCode(from: ipcViewModel.publicKey)
         }
-        .onChange(of: ipc.publicKey) { oldValue, newValue in
+        .onChange(of: ipcViewModel.publicKey) { oldValue, newValue in
             generateQRCode(from: oldValue.isEmpty ? newValue : oldValue)
         }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+    }
+    
+    private func getPublicKey() {
+        Task {
+            if ipcViewModel.publicKey.isEmpty {
+                let message: [String: Any] = [
+                    "action": "requestPublicKey",
+                    "data": [:]
+                ]
+                await ipcViewModel.writeToIPC(message: message)
+            }
+        }
     }
     
     private func generateQRCode(from string: String) {
@@ -71,9 +84,9 @@ struct ShareIDView: View {
             Text("Or copy public ID")
                 .foregroundStyle(.secondary)
             
-            if !ipc.publicKey.isEmpty {
+            if !ipcViewModel.publicKey.isEmpty {
                 HStack {
-                    Text(ipc.publicKey)
+                    Text(ipcViewModel.publicKey)
                         .font(.body)
                         .textSelection(.enabled)
                         .padding(10)
@@ -90,7 +103,7 @@ struct ShareIDView: View {
     
     private var copyButton: some View {
         Button(action: {
-            UIPasteboard.general.string = ipc.publicKey
+            UIPasteboard.general.string = ipcViewModel.publicKey
         }) {
             Image(systemName: "doc.on.clipboard")
                 .foregroundColor(.blue)
@@ -120,5 +133,5 @@ struct ShareIDView: View {
 
 #Preview {
     ShareIDView()
-        .environmentObject(IPC())
+        .environmentObject(IPCViewModel())
 }

@@ -1,37 +1,56 @@
+import BareKit
 import SwiftUI
 
 @main
 struct App: SwiftUI.App {
-    @StateObject private var worklet = Worklet()
-    @StateObject private var ipc = IPC()
-    @Environment(\.scenePhase) private var scenePhase
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
+    @StateObject private var worker = Worker()
+    @StateObject private var ipcViewModel = IPCViewModel()
+    
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var modelContext
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .onAppear {
-                    worklet.start()
-                    
-                    if worklet.ipc != nil {
-                        ipc.configure(with: worklet.ipc!)
-                        ipc.listenForMessages()
+                    worker.start()
+                    ipcViewModel.configure(with: worker.ipc)
+                    Task {
+                        await ipcViewModel.readFromIPC()
                     }
                 }
                 .onDisappear {
-                    worklet.terminate()
+                    worker.terminate()
                 }
         }
-        .environmentObject(ipc)
+        .environmentObject(ipcViewModel)
         .modelContainer(for: People.self)
         .onChange(of: scenePhase) { phase in
             switch phase {
             case .background:
-                worklet.suspend()
+                worker.suspend()
             case .active:
-                worklet.resume()
+                worker.resume()
             default:
                 break
+            }
+        }
+    }
+    
+    private func requestPushNotificationPermission() {
+        let center = UNUserNotificationCenter.current()
+        
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("\(error.localizedDescription)")
+            } else if granted {
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            } else {
+                print("Notification authorization denied")
             }
         }
     }

@@ -17,7 +17,7 @@ struct SixthPageView: View {
                 .foregroundColor(.white)
                 .padding()
             
-            Text("You can start tracking your loved ones and connect with them!")
+            Text("You can start finding your people and connect with them!")
                 .font(.title2)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
