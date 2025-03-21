@@ -9,6 +9,9 @@ packages:
   BareKit:
     url: https://github.com/holepunchto/bare-kit-swift
     branch: main
+  swiftui-dsl:
+    url: https://github.com/maplibre/swiftui-dsl
+    branch: main
 
 targets:
   App:
@@ -43,6 +46,9 @@ targets:
       - package: BareKit
       - framework: app/frameworks/BareKit.xcframework
       - target: NotificationServiceExtension
+      - package: swiftui-dsl
+        product: MapLibreSwiftDSL
+        product: MapLibreSwiftUI
 
     sources:
       - path: app/App.swift
@@ -54,6 +60,7 @@ targets:
       - path: app/Worker.swift
       - path: app/NotificationService.swift
       - path: app/push.bundle
+      - path: app/style.json
 
       - path: app/Core/Root/ContentView.swift
         group: app/Core/Root

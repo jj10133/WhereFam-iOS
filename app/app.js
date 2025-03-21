@@ -4,13 +4,15 @@ const Hyperbee = require('hyperbee');
 const Hypercore = require('hypercore');
 const sodium = require('sodium-native');
 const b4a = require('b4a');
+const Corestore = require('corestore');
+const BlobServer = require('hypercore-blob-server');
 
 let swarm = null;
 let db = null;
-const conns = []
+const conns = [];
+let mapLink = null;
 
 IPC.setEncoding('utf8');
-
 
 IPC.on('data', async (data) => {
     try {
@@ -27,14 +29,16 @@ IPC.on('data', async (data) => {
                 await addPeer(message.data);
                 break;
             case 'locationUpdate':
-                await sendUserLocation(data)
+                await sendUserLocation(data);
                 break;
-
+            case 'requestLink':
+                await getLink();
+                break;
         }
     } catch (error) {
-        console.error("Erorr handling IPC message: ", error);
+        console.error('Erorr handling IPC message: ', error);
     }
-});
+})
 
 async function getPublicKey() {
     const publicKeyBase64 = await db.get('publicKey');
@@ -44,12 +48,12 @@ async function getPublicKey() {
             publicKey: publicKeyBase64.value
         }
     };
-    IPC.write(JSON.stringify(message))
+    IPC.write(JSON.stringify(message));
 }
-
 
 async function startHyperswarm(documentsPath) {
     try {
+        await drive(documentsPath);
         const core = new Hypercore(documentsPath, { valueEncoding: 'json' });
         db = new Hyperbee(core, { keyEncoding: 'utf-8', valueEncoding: 'json' });
 
@@ -119,5 +123,43 @@ async function sendUserLocation(locationData) {
     }
 }
 
+async function getLink() {
+    if (mapLink) {
+        const message = {
+            action: 'requestLink',
+            data: {
+                link: mapLink
+            }
+        };
+        IPC.write(JSON.stringify(message));
+    } else {
+        console.log('Map link is not ready yet.');
+    }
+}
 
-
+async function drive(documentsPath) {
+    const key = b4a.from('8480135e2c2d6450cfacccb4cc554ce8e58876c1ca8ee6a5e02ee6b0d9985c20','hex');
+    
+    console.log(documentsPath);
+    const store = new Corestore(documentsPath + 'reader-dir');
+    
+    const mapSwarm = new Hyperswarm();
+    mapSwarm.on('connection', (conn) => store.replicate(conn));
+    const server = new BlobServer(store);
+    await server.listen();
+    
+    const filenameOpts = {
+        filename: '/planet_z6.pmtiles'
+    };
+    const link = server.getLink(key, filenameOpts);
+    mapLink = link;
+    console.log('link', link);
+    
+    const monitor = server.monitor(key, filenameOpts);
+    monitor.on('update', () => {
+        console.log('monitor', monitor.stats.downloadStats);
+    })
+    
+    const topic = Hypercore.discoveryKey(key);
+    mapSwarm.join(topic, { client: true, server: false });
+}

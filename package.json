@@ -24,10 +24,14 @@
   },
   "dependencies": {
     "b4a": "^1.6.7",
-    "hyperbee": "^2.21.2",
-    "hypercore": "^10.38.2",
+    "corestore": "^7.0.19",
+    "hyperbee": "^2.23.0",
+    "hypercore": "^11.0.47",
+    "hypercore-blob-server": "^1.9.0",
     "hyperswarm": "^4.8.4",
-    "sodium-native": "^4.3.1",
-    "udx-native": "^1.17.2"
+    "maplibre-gl": "^5.2.0",
+    "pmtiles": "^4.3.0",
+    "sodium-native": "^4.3.3",
+    "udx-native": "^1.17.5"
   }
 }

@@ -7,15 +7,13 @@
 
 import SwiftUI
 import SwiftData
-import MapKit
+import MapLibreSwiftUI
+import CoreLocation
 
 struct HomeView: View {
     @EnvironmentObject var ipcViewModel: IPCViewModel
     @Environment(\.modelContext) private var modelContext
     @Query var people: [People]
-    
-    @Namespace private var mapScope
-    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     
     @State private var isPressed = false
     @State private var isSheetPresented: Bool = false
@@ -25,9 +23,11 @@ struct HomeView: View {
     
     private let appUrl = "https://app.com"
     
+    @State var camera = MapViewCamera.center(CLLocationCoordinate2D(latitude: -1.94995, longitude: 30.05885), zoom: 1.0)
+    
     var body: some View {
         ZStack {
-            MapView(position: $position, mapScope: mapScope)
+            Map(position: $camera)
             
             VStack {
                 Spacer()
@@ -53,9 +53,8 @@ struct HomeView: View {
     private func onAppear() {
         Task {
             await startHyperswarm()
-            getPublicKey()
             ipcViewModel.modelContext = modelContext
-            startLocationUpdateTimer()
+            //            startLocationUpdateTimer()
         }
     }
     
@@ -109,18 +108,6 @@ struct HomeView: View {
         }
     }
     
-    private func getPublicKey() {
-        Task {
-            if ipcViewModel.publicKey.isEmpty {
-                let message: [String: Any] = [
-                    "action": "requestPublicKey",
-                    "data": [:]
-                ]
-                await ipcViewModel.writeToIPC(message: message)
-            }
-        }
-    }
-    
     private func sheetView(for option: MenuOption) -> some View {
         switch option {
         case .people:
@@ -133,30 +120,76 @@ struct HomeView: View {
     }
 }
 
-struct MapView: View {
-    @EnvironmentObject var ipc: IPCViewModel
-    @Binding var position: MapCameraPosition
-    var mapScope: Namespace.ID
+struct Map: View {
+    @EnvironmentObject var ipcViewModel: IPCViewModel
+    @Binding var position: MapViewCamera
+    @State var styleURL: URL?
     
     var body: some View {
-        Map(position: $position, interactionModes: [.all], scope: mapScope) {
-            UserAnnotation()
+        ZStack {
+            if let styleURL = styleURL {
+                MapView(styleURL: styleURL, camera: $position)
+                
+            }
+        }
+        .onAppear {
+            Task {
+                if ipcViewModel.link.isEmpty {
+                    let message: [String: Any] = [
+                        "action": "requestLink",
+                        "data": [:]
+                    ]
+                    await ipcViewModel.writeToIPC(message: message)
+                }
+            }
             
-            ForEach(Array(ipc.updatedPeopleLocation.values)) { person in
-                if let lat = person.latitude, let lng = person.longitude {
-                    Annotation(person.name ?? "", coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng), anchor: .bottom) {
-                        PersonAnnotationView(person: person)
-                    }
+            if let bundleStyleURL = Bundle.main.url(forResource: "style", withExtension: "json") {
+                do {
+                    // Read the style.json from the app bundle
+                    let jsonData = try Data(contentsOf: bundleStyleURL)
+                    
+                    // Write the data to the Documents directory
+                    try jsonData.write(to: URL.documentsDirectory.appendingPathComponent("style.json"))
+                    print("Successfully copied style.json to Documents directory.")
+                } catch {
+                    print("Error copying style.json from bundle to Documents directory: \(error)")
                 }
             }
         }
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
-            MapScaleView()
-            MapPitchToggle()
+        .onChange(of: ipcViewModel.link) { oldLink, newLink in
+            updateStyleURL()
         }
-        .mapScope(mapScope)
+        
+        
+        
+        //            ForEach(Array(ipc.updatedPeopleLocation.values)) { person in
+        //                if let lat = person.latitude, let lng = person.longitude {
+        //                    Annotation(person.name ?? "", coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng), anchor: .bottom) {
+        //                        PersonAnnotationView(person: person)
+        //                    }
+        //                }
+        //            }
+        
+        
+    }
+    
+    private func updateStyleURL() {
+        do {
+            let styleFileURL = URL.documentsDirectory.appending(path: "style.json")
+            var jsonString = try String(contentsOf: styleFileURL)
+            
+            let newURL = "pmtiles://\(ipcViewModel.link)"
+            let oldURL = "pmtiles://"
+            if jsonString.contains(oldURL) {
+                jsonString = jsonString.replacingOccurrences(of: oldURL, with: newURL)
+                try jsonString.write(to: styleFileURL, atomically: true, encoding: .utf8)
+            }
+            
+            styleURL = styleFileURL
+            
+        } catch {
+            print("Error updating style.json: \(error)")
+        }
     }
 }
 
