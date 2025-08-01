@@ -16,22 +16,35 @@ class IPCViewModel: ObservableObject {
     @Published var publicKey: String = ""
     @Published var updatedPeopleLocation: [String: LocationUpdates] = [:]
     
-    @Published var link: String = ""
     
     func configure(with ipc: IPC?) {
         self.ipc = ipc
     }
     
     func readFromIPC() async {
-        for await chunck in ipc! {
-            processIncomingMessage(chunck)
+        guard let ipc = self.ipc else {
+            print("Error: IPC object is nil, cannot read.")
+            return
+        }
+        
+        do {
+            for try await chunck in ipc {
+                processIncomingMessage(chunck)
+            }
+        } catch {
+            print("Error reading from IPC: \(error.localizedDescription)")
         }
     }
     
     func writeToIPC(message: [String: Any]) async {
+        guard let ipc = self.ipc else {
+            print("Error: IPC object is nil, cannot read.")
+            return
+        }
+        
         do {
             let data = try JSONSerialization.data(withJSONObject: message, options: .prettyPrinted)
-            await ipc?.write(data: data)
+            try await ipc.write(data: data)
         } catch(let error) {
             print("Debug: Error writing to IPC: \(error.localizedDescription)")
         }
@@ -48,8 +61,6 @@ class IPCViewModel: ObservableObject {
             handlePublicKeyRequest(incomingMessage)
         case "locationUpdate":
             handleLocationUpdate(incomingMessage)
-        case "requestLink":
-            handleLinkRequest(incomingMessage)
         default:
             print("Unknown action: \(incomingMessage.action)")
         }
@@ -104,17 +115,6 @@ class IPCViewModel: ObservableObject {
         
         // TODO: Need to save but swiftdata is not working as expected to render the UI
         // Did try actor approach not working!! Help needed
-    }
-    
-    private func handleLinkRequest(_ incomingMessage: IncomingMessage) {
-        if let dataDictionary = incomingMessage.data.value as? [String: Any],
-           let link = dataDictionary["link"] as? String {
-            DispatchQueue.main.async {
-                self.link = link
-            }
-        } else {
-            print("Invalid format or missing publicKey in the data.")
-        }
     }
     
 }

@@ -123,41 +123,11 @@ struct HomeView: View {
 struct Map: View {
     @EnvironmentObject var ipcViewModel: IPCViewModel
     @Binding var position: MapViewCamera
-    @State var styleURL: URL?
+    @State var styleURL: URL = URL.documentsDirectory.appending(path: "style.json")
     
     var body: some View {
         ZStack {
-            if let styleURL = styleURL {
                 MapView(styleURL: styleURL, camera: $position)
-                
-            }
-        }
-        .onAppear {
-            Task {
-                if ipcViewModel.link.isEmpty {
-                    let message: [String: Any] = [
-                        "action": "requestLink",
-                        "data": [:]
-                    ]
-                    await ipcViewModel.writeToIPC(message: message)
-                }
-            }
-            
-            if let bundleStyleURL = Bundle.main.url(forResource: "style", withExtension: "json") {
-                do {
-                    // Read the style.json from the app bundle
-                    let jsonData = try Data(contentsOf: bundleStyleURL)
-                    
-                    // Write the data to the Documents directory
-                    try jsonData.write(to: URL.documentsDirectory.appendingPathComponent("style.json"))
-                    print("Successfully copied style.json to Documents directory.")
-                } catch {
-                    print("Error copying style.json from bundle to Documents directory: \(error)")
-                }
-            }
-        }
-        .onChange(of: ipcViewModel.link) { oldLink, newLink in
-            updateStyleURL()
         }
         
         
@@ -173,24 +143,6 @@ struct Map: View {
         
     }
     
-    private func updateStyleURL() {
-        do {
-            let styleFileURL = URL.documentsDirectory.appending(path: "style.json")
-            var jsonString = try String(contentsOf: styleFileURL)
-            
-            let newURL = "pmtiles://\(ipcViewModel.link)"
-            let oldURL = "pmtiles://"
-            if jsonString.contains(oldURL) {
-                jsonString = jsonString.replacingOccurrences(of: oldURL, with: newURL)
-                try jsonString.write(to: styleFileURL, atomically: true, encoding: .utf8)
-            }
-            
-            styleURL = styleFileURL
-            
-        } catch {
-            print("Error updating style.json: \(error)")
-        }
-    }
 }
 
 struct PersonAnnotationView: View {
