@@ -27,7 +27,7 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            Map(position: $camera)
+            MyMapView(position: $camera)
             
             VStack {
                 Spacer()
@@ -116,19 +116,20 @@ struct HomeView: View {
             return AnyView(ShareIDView())
         case .provideFeedback:
             return AnyView(ProvideFeedbackView())
+        case .support:
+            return AnyView(SupportAppView())
+            
         }
     }
 }
 
-struct Map: View {
-    @EnvironmentObject var ipcViewModel: IPCViewModel
+struct MyMapView: View {
     @Binding var position: MapViewCamera
     @State var styleURL: URL = URL.documentsDirectory.appending(path: "style.json")
     
     var body: some View {
-        ZStack {
-                MapView(styleURL: styleURL, camera: $position)
-        }
+            MapView(styleURL: styleURL, camera: $position)
+        
         
         
         
@@ -190,9 +191,20 @@ struct MenuButton: View {
                 Label("Provide Feedback", systemImage: "exclamationmark.bubble")
             }
             
+            Button(action: { openSheet(.support) }) {
+                Label("Support App", systemImage: "wand.and.stars")
+            }
+            
             ShareLink(item: "https://app.com") {
                 Label("Refer To Friend", systemImage: "square.and.arrow.up")
             }
+            
+            if let reviewURL = URL(string: "https://apps.apple.com/app/id?action=write-review") {
+                Link(destination: reviewURL) {
+                    Label("Rate App", systemImage: "link")
+                }
+            }
+            
         } label: {
             Image(systemName: "plus.circle.fill")
                 .font(.system(size: 33))
@@ -212,7 +224,7 @@ struct MenuButton: View {
 }
 
 enum MenuOption: Identifiable {
-    case people, shareID, provideFeedback
+    case people, shareID, provideFeedback, support
     
     var id: String {
         switch self {
@@ -222,11 +234,16 @@ enum MenuOption: Identifiable {
             return "shareID"
         case .provideFeedback:
             return "provideFeedback"
+        case .support:
+            return "support"
         }
     }
 }
 
 #Preview {
+    let container = try! ModelContainer(for: People.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    
     HomeView()
         .environmentObject(IPCViewModel())
+        .modelContainer(container)
 }
