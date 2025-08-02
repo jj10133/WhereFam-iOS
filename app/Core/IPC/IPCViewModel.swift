@@ -16,9 +16,11 @@ class IPCViewModel: ObservableObject {
     @Published var publicKey: String = ""
     @Published var updatedPeopleLocation: [String: LocationUpdates] = [:]
     
+    private var ipcBuffer = ""
     
-    func configure(with ipc: IPC?) {
+    func configure(with ipc: IPC?, modelContext: ModelContext?) {
         self.ipc = ipc
+        self.modelContext = modelContext
     }
     
     func readFromIPC() async {
@@ -28,8 +30,10 @@ class IPCViewModel: ObservableObject {
         }
         
         do {
-            for try await chunck in ipc {
-                processIncomingMessage(chunck)
+            for try await chunk in ipc {
+                if let chunkString = String(data: chunk, encoding: .utf8) {
+                    processIncomingChunks(chunkString)
+                }
             }
         } catch {
             print("Error reading from IPC: \(error.localizedDescription)")
@@ -50,14 +54,40 @@ class IPCViewModel: ObservableObject {
         }
     }
     
-    func processIncomingMessage(_ message: Data) {
-        guard let incomingMessage = try? JSONDecoder().decode(IncomingMessage.self, from: message) else {
-            print("Failed to decode incoming message")
-            return
-        }
+    func processIncomingChunks(_ chunk: String) {
+        ipcBuffer.append(chunk)
         
+        var lines = ipcBuffer.components(separatedBy: "\n")
+        
+        // The last element might be an incomplete line.
+        // We'll keep it in the buffer for the next chunk.
+        ipcBuffer = lines.last ?? ""
+        lines.removeLast()
+        
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedLine.isEmpty {
+                continue
+            }
+            
+            guard let data = trimmedLine.data(using: .utf8) else {
+                print("Failed to convert string to Data: \(trimmedLine)")
+                continue
+            }
+            
+            do {
+                let incomingMessage = try JSONDecoder().decode(IncomingMessage.self, from: data)
+                handleIPCMessage(incomingMessage)
+            } catch {
+                print("Error decoding IPC message: \(error.localizedDescription)")
+                print("Message content: \(trimmedLine)")
+            }
+        }
+    }
+    
+    func handleIPCMessage(_ incomingMessage: IncomingMessage) {
         switch incomingMessage.action {
-        case "requestPublicKey":
+        case "publicKeyRequest":
             handlePublicKeyRequest(incomingMessage)
         case "locationUpdate":
             handleLocationUpdate(incomingMessage)
