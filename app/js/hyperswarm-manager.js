@@ -1,3 +1,10 @@
+//
+//  hyperswarm-manager.js
+//  WhereFam
+//
+//  Created by joker on 2025-08-02.
+//
+
 // src/hyperswarm-manager.js
 const Hyperswarm = require('hyperswarm')
 const b4a = require('b4a')

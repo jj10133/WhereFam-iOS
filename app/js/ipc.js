@@ -1,3 +1,10 @@
+//
+//  ipc.js
+//  WhereFam
+//
+//  Created by joker on 2025-08-02.
+//
+
 const { IPC } = BareKit
 const EventEmitter = require('bare-events')
 
