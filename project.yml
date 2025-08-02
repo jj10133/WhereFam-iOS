@@ -12,6 +12,9 @@ packages:
   swiftui-dsl:
     url: https://github.com/maplibre/swiftui-dsl
     branch: main
+  purchases-ios-spm:
+    url: https://github.com/RevenueCat/purchases-ios
+    from: 5.34.0
 
 targets:
   App:
@@ -25,6 +28,8 @@ targets:
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
         # IPHONEOS_DEPLOYMENT_TARGET: '17'
+        CODE_SIGN_STYLE: Automatic
+
     info:
       path: app/Info.plist
       properties:
@@ -49,15 +54,14 @@ targets:
       - package: swiftui-dsl
         product: MapLibreSwiftDSL
         product: MapLibreSwiftUI
+      - package: purchases-ios-spm
+        product: RevenueCat
 
     sources:
       - path: app/App.swift
       - path: app/AppDelegate.swift
-      - path: app/app.js
-      - path: app/push.js
       - path: app/app.bundle
       - path: app/Assets.xcassets
-      - path: app/Worker.swift
       - path: app/NotificationService.swift
       - path: app/push.bundle
       - path: app/style.json
@@ -70,6 +74,7 @@ targets:
       - path: app/Core/Home/View/HomeView.swift
       - path: app/Core/Home/View/ProvideFeedbackView.swift
       - path: app/Core/Home/View/ShareIDView.swift
+      - path: app/Core/Home/View/SupportAppView.swift
 
       - path: app/Core/Onboarding/View/FifthPageView.swift
         group: app/Core/Onboarding/View
@@ -81,8 +86,16 @@ targets:
 
       - path: app/Core/IPC/IPCViewModel.swift
         group: app/Core/IPC
+      - path: app/Core/IPC/Worker.swift
 
-      - path: app/Core/
+      - path: app/js/app.js
+        group: app/js
+      - path: app/js/push.js
+      - path: app/js/constants.js
+      - path: app/js/hyperbee-manager.js
+      - path: app/js/hyperswarm-manager.js
+      - path: app/js/map-manager.js
+      - path: app/js/ipc.js
 
       - path: app/Manager/LocationManager.swift
         group: app/Manager
@@ -109,7 +122,7 @@ targets:
               --linked \
               --base ${PWD} \
               --out ${PWD}/app/app.bundle \
-              ${PWD}/app/app.js
+              ${PWD}/app/js/app.js
             PATH="${PATH}" "${PWD}/node_modules/.bin/bare-pack" \
               --target ios-arm64 \
               --target ios-arm64-simulator \
@@ -117,7 +130,7 @@ targets:
               --linked \
               --base ${PWD} \
               --out ${PWD}/app/push.bundle \
-              ${PWD}/app/push.js
+              ${PWD}/app/js/push.js
 
   NotificationServiceExtension:
     type: app-extension
@@ -144,6 +157,6 @@ targets:
       - package: BareKit
     sources:
       - path: app/NotificationService.swift
-      - path: app/push.js
+      - path: app/js/push.js
       - path: app/push.bundle
         optional: true
