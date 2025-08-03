@@ -2,7 +2,7 @@ targets:
   App:
     dependencies:
       - framework: sodium-native.5.0.6.xcframework
-      - framework: udx-native.1.17.5.xcframework
+      - framework: udx-native.1.18.2.xcframework
       - framework: bare-fs.4.1.6.xcframework
       - framework: bare-os.3.6.1.xcframework
       - framework: crc-native.1.1.6.xcframework
