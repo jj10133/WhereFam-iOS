@@ -24,11 +24,14 @@
   },
   "dependencies": {
     "b4a": "^1.6.7",
+    "compact-encoding": "^2.16.1",
     "corestore": "^7.4.5",
     "hyperbee": "^2.24.3",
     "hypercore": "^11.11.1",
     "hypercore-blob-server": "^1.11.0",
     "hyperswarm": "^4.12.1",
-    "sodium-native": "^4.3.3"
+    "protomux": "^3.10.1",
+    "sodium-native": "^5.0.6",
+    "udx-native": "^1.18.2"
   }
 }
