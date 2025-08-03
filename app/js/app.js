@@ -3,6 +3,7 @@ const ipc = require('./ipc')
 const hyperbeeManager = require('./hyperbee-manager')
 const hyperswarmManager = require('./hyperswarm-manager')
 const mapManager = require('./map-manager')
+const locationManager = require('./location-manager')
 
 console.log('Application starting...')
 
@@ -13,18 +14,14 @@ ipc.on('start', async (data) => {
     await hyperbeeManager.initializeHyperbee(documentsPath)
     const keyPair = await hyperbeeManager.getOrCreateKeyPair()
     await hyperswarmManager.initializeHyperswarm(keyPair)
+
+    // Setup and register all protocols
+    await mapManager.getMaps(documentsPath)
+    locationManager.setupLocationProtocol()
+    
+    console.log('All managers initialized and protocols registered.')
   } catch (error) {
     console.error('Failed to start application:', error)
-  }
-})
-
-ipc.on('fetchMaps', async (data) => {
-  const documentsPath = data['path']
-  console.log('Received "fetchMaps" event with path:', documentsPath)
-  try {
-    await mapManager.getMaps(documentsPath)
-  } catch (error) {
-    console.error('Failed to fetch maps:', error)
   }
 })
 
@@ -42,7 +39,7 @@ ipc.on('requestPublicKey', async () => {
 })
 
 ipc.on('joinPeer', async (data) => {
-  const peerPublicKey = data['peerPublicKey']
+  const peerPublicKey = data
   console.log('Received "joinPeer" event for:', peerPublicKey)
   try {
     hyperswarmManager.joinPeer(peerPublicKey)
@@ -54,7 +51,8 @@ ipc.on('joinPeer', async (data) => {
 ipc.on('locationUpdate', async (data) => {
   console.log('Received "locationUpdate" event.')
   try {
-    hyperswarmManager.sendUserLocationToPeers(data)
+    // Route the IPC message to the new location manager
+    locationManager.sendLocationToPeers(data)
   } catch (error) {
     console.error('Failed to send user location:', error)
   }

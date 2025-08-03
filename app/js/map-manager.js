@@ -10,27 +10,27 @@ async function getMaps(documentsPath) {
   try {
     const key = b4a.from(PMTILES_KEY, 'hex')
     const store = new Corestore(documentsPath + '/maps')
-
-    // Get the shared hyperswarm instance
-    const mapSwarm = hyperswarmManager.getSwarm()
-
-    // Listen for new connections on the shared swarm
-    mapSwarm.on('connection', (conn) => {
-      store.replicate(conn)
+    
+    // Register the corestore replication protocol
+    hyperswarmManager.registerProtocol('hypercore-replication', (mux) => {
+      // Replicate the corestore over the protomux channel
+      store.replicate(mux)
     })
-
+    
     const server = new BlobServer(store, {
       token: false
     })
     await server.listen()
     console.log('BlobServer listening.')
-
-    const filenameOpts = {
-      filename: '/20250512.pmtiles'
-    }
-
+    
+    const filenameOpts = { filename: '/20250512.pmtiles' }
+    
+    const link = server.getLink(key, filenameOpts)
+    console.log('link', link)
+    
+    const swarm = hyperswarmManager.getSwarm()
     const topic = Hypercore.discoveryKey(key)
-    mapSwarm.join(topic)
+    swarm.join(topic)
   } catch (error) {
     console.error('Error getting maps:', error)
     throw error
