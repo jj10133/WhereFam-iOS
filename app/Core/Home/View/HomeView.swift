@@ -20,6 +20,7 @@ struct HomeView: View {
     @State private var selectedOption: MenuOption? = nil
     
     @State private var timer: Timer? = nil
+    @State private var showMap: Bool = false
     
     private let appUrl = "https://app.com"
     
@@ -27,7 +28,11 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            MyMapView(position: $camera)
+            if showMap {
+                MyMapView(position: $camera)
+            } else {
+                ProgressView()
+            }
             
             VStack {
                 Spacer()
@@ -48,25 +53,35 @@ struct HomeView: View {
         .sheet(item: $selectedOption) { option in
             sheetView(for: option)
         }
+        .ignoresSafeArea()
     }
     
+    //TODO: Change the name or improve the code
     private func onAppear() {
         Task {
             await startHyperswarm()
             ipcViewModel.modelContext = modelContext
             //            startLocationUpdateTimer()
+            
+            try await Task.sleep(for: .seconds(2))
+            await MainActor.run {
+                self.showMap = true
+            }
         }
     }
     
     private func startHyperswarm() async {
         let directory = URL.documentsDirectory
         let message: [String: Any] = [
-            "action": "startHyperswarm",
-            "data": directory.path()
+            "action": "start",
+            "data": [
+                "path" : directory.path()
+            ]
         ]
         await ipcViewModel.writeToIPC(message: message)
     }
     
+    // TODO: Use AsynSequence rather than this timer lol!!
     private func startLocationUpdateTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
             sendUserLocation()
@@ -125,12 +140,11 @@ struct HomeView: View {
 
 struct MyMapView: View {
     @Binding var position: MapViewCamera
-    @State var styleURL: URL = URL.documentsDirectory.appending(path: "style.json")
+    @State var styleURL: URL = Bundle.main.url(forResource: "style", withExtension: "json")!
     
     var body: some View {
-            MapView(styleURL: styleURL, camera: $position)
         
-        
+        MapView(styleURL: styleURL, camera: $position)
         
         
         //            ForEach(Array(ipc.updatedPeopleLocation.values)) { person in
