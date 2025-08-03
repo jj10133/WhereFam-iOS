@@ -47,7 +47,8 @@ class IPCViewModel: ObservableObject {
         }
         
         do {
-            let data = try JSONSerialization.data(withJSONObject: message, options: .prettyPrinted)
+            var data = try JSONSerialization.data(withJSONObject: message, options: [])
+            data.append("\n".data(using: .utf8)!)
             try await ipc.write(data: data)
         } catch(let error) {
             print("Debug: Error writing to IPC: \(error.localizedDescription)")
@@ -87,7 +88,7 @@ class IPCViewModel: ObservableObject {
     
     func handleIPCMessage(_ incomingMessage: IncomingMessage) {
         switch incomingMessage.action {
-        case "publicKeyRequest":
+        case "publicKeyResponse":
             handlePublicKeyRequest(incomingMessage)
         case "locationUpdate":
             handleLocationUpdate(incomingMessage)
