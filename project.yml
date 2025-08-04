@@ -27,7 +27,6 @@ targets:
         SWIFT_VERSION: 5.0
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
-        # IPHONEOS_DEPLOYMENT_TARGET: '17'
         CODE_SIGN_STYLE: Automatic
 
     info:
@@ -43,7 +42,10 @@ targets:
       properties:
         aps-environment: development
         com.apple.security.application-groups:
-          - group.to.holepunch.bare.ios
+          - group.com.wherefam.ios
+
+    capabilities:
+      - inAppPurchase: true
 
     appIcon: app/Assets.xcassets/AppIcon.appIconset
     dependencies:
@@ -65,6 +67,7 @@ targets:
       - path: app/NotificationService.swift
       - path: app/push.bundle
       - path: app/style.json
+      - path: app/WhereFam.storekit
 
       - path: app/Core/Root/ContentView.swift
         group: app/Core/Root
