@@ -11,11 +11,11 @@ struct SupportAppView: View {
         
         init(productId: String) {
             // Extract the tip type from the product ID (split by ".")
-            self = .init(rawValue: String(productId.split(separator: ".")[2]))!
+            self = .init(rawValue: String(productId))!
         }
         
         var productId: String {
-            "com.yourcompany.wherefam.tipjar.\(rawValue)"
+            "com.wherefam.tipjar.\(rawValue)"
         }
         
         var title: String {
@@ -32,7 +32,7 @@ struct SupportAppView: View {
             case .small: return "Thank you for the coffee!"
             case .medium: return "Much appreciated!"
             case .large: return "You're a star!"
-            case .huge: return "Seriously, thank you!"
+            case .huge: return "Seriously, thank you! Who are you??"
             }
         }
     }
@@ -49,6 +49,7 @@ struct SupportAppView: View {
         NavigationStack {
             Form {
                 aboutSection
+                subscriptionSection
                 tipsSection
                 restorePurchase
             }
@@ -76,7 +77,7 @@ struct SupportAppView: View {
     private var aboutSection: some View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Hi there! My name is JJ and I love FOSS. WhereFam is one of my projects that I'm really proud of. Since everything is P2P, your data stays on your device. If you're enjoying WhereFam, consider tossing a little tip to support the app and its ongoing maintenance. 🚀")
+                Text("Hi there! My name is Nish and I love FOSS. WhereFam is one of my projects that I'm really proud of. Since everything is P2P, your data stays on your device. If you're enjoying WhereFam, consider tossing a little tip to support the app and its ongoing maintenance. 🚀")
                     .font(.body)
                     .padding(.bottom, 10)
             }
@@ -111,7 +112,7 @@ struct SupportAppView: View {
     
     // Section to restore previous purchases
     private var restorePurchase: some View {
-        Section(footer: Text("If you've previously made a purchase and it's not showing up, tap to restore it.")) {
+        Section {
             HStack {
                 Spacer()
                 Button("Restore Purchases") {
@@ -120,8 +121,47 @@ struct SupportAppView: View {
                 .buttonStyle(.bordered)
                 Spacer()
             }
+        } footer: {
+            Text("If you've previously made a purchase and it's not showing up, tap to restore it.")
+        }
+        .listRowBackground(Color.clear)
+    }
+    
+    private var subscriptionSection: some View {
+        Section {
+            if loadingProducts {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else if let subscription = products.first(where: { $0.productIdentifier == "com.yourcompany.wherefam.subscription" }) {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Subscription Plan")
+                            .font(.headline)
+                    }
+                    Spacer()
+                    
+                    // Check if the user is subscribed
+                    if let customerInfo = customerInfo,
+                       customerInfo.entitlements["Tip"]?.isActive == true {
+                        Text("You're subscribed!")
+                            .font(.body)
+                            .foregroundColor(.green)
+                    } else {
+                        makePurchaseButton(product: subscription)
+                    }
+                }
+                .padding(.vertical, 8)
+            }
+        } footer: {
+            if customerInfo?.entitlements.active.isEmpty == true {
+                Text("Your subscription will auto-renew on a monthly basis. You can manage your subscription in the App Store settings.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 5)
+            }
         }
     }
+
     
     // Fetch the list of products from RevenueCat
     private func fetchStoreProducts() {
