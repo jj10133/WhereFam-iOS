@@ -38,7 +38,7 @@ targets:
         UIBackgroundModes:
           - location
     entitlements:
-      path: app/App.entitlements
+      path: app/WhereFam.entitlements
       properties:
         aps-environment: development
         com.apple.security.application-groups:
@@ -46,6 +46,7 @@ targets:
 
     capabilities:
       - inAppPurchase: true
+      - pushNotifications: true 
 
     appIcon: app/Assets.xcassets/AppIcon.appIconset
     dependencies:
@@ -153,8 +154,8 @@ targets:
       path: app/NotificationServiceExtension.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.to.holepunch.bare.ios
-        com.apple.developer.usernotifications.filtering: true
+          - group.com.wherefam.ios
+        # com.apple.developer.usernotifications.filtering: true
     dependencies:
       - framework: app/frameworks/BareKit.xcframework
       - package: BareKit
