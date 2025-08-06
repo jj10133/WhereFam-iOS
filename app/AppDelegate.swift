@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RevenueCat
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -20,5 +21,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
         print("\(error.localizedDescription)")
+    }
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        Purchases.logLevel = .debug
+        Purchases.configure(withAPIKey: "appl_LkaFrjRtUVbwuHPoZgNXPwClFnD")
+        return true
     }
 }
