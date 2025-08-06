@@ -59,6 +59,7 @@ targets:
         product: MapLibreSwiftUI
       - package: purchases-ios-spm
         product: RevenueCat
+        product: RevenueCatUI
 
     sources:
       - path: app/App.swift
