@@ -7,8 +7,12 @@
 
 import SwiftUI
 import SwiftData
+import MapLibre
 import MapLibreSwiftUI
+import MapLibreSwiftDSL
 import CoreLocation
+import RevenueCat
+import RevenueCatUI
 
 struct HomeView: View {
     @EnvironmentObject var ipcViewModel: IPCViewModel
@@ -62,8 +66,10 @@ struct HomeView: View {
             await startHyperswarm()
             ipcViewModel.modelContext = modelContext
             //            startLocationUpdateTimer()
+            startLocationUpdateTimer()
             
             try await Task.sleep(for: .seconds(2))
+            try await Task.sleep(for: .seconds(4))
             await MainActor.run {
                 self.showMap = true
             }
@@ -132,7 +138,7 @@ struct HomeView: View {
         case .provideFeedback:
             return AnyView(ProvideFeedbackView())
         case .support:
-            return AnyView(SupportAppView())
+            return AnyView(PaywallView())
             
         }
     }
