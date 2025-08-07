@@ -5,7 +5,7 @@ include:
 packages:
   ConcentricOnboarding:
     url: https://github.com/exyte/ConcentricOnboarding.git
-    from: 1.0.6
+    from: 1.1.1
   BareKit:
     url: https://github.com/holepunchto/bare-kit-swift
     branch: main
@@ -20,7 +20,7 @@ targets:
   App:
     type: application
     platform: iOS
-    deploymentTarget: 17
+    deploymentTarget: 17.0
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wherefam.ios
@@ -28,6 +28,7 @@ targets:
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
         DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
         CODE_SIGN_STYLE: Automatic
+        OTHER_LDFLAGS: "$(inherited) -weak_framework SwiftUICore"
 
     info:
       path: app/Info.plist
@@ -43,6 +44,7 @@ targets:
         aps-environment: development
         com.apple.security.application-groups:
           - group.com.wherefam.ios
+        com.apple.security.cs.allow-jit: true
 
     capabilities:
       - inAppPurchase: true
@@ -79,7 +81,6 @@ targets:
       - path: app/Core/Home/View/HomeView.swift
       - path: app/Core/Home/View/ProvideFeedbackView.swift
       - path: app/Core/Home/View/ShareIDView.swift
-      - path: app/Core/Home/View/SupportAppView.swift
 
       - path: app/Core/Onboarding/View/FifthPageView.swift
         group: app/Core/Onboarding/View
@@ -114,26 +115,18 @@ targets:
         - name: Link
           script: |
             PATH="${PATH}" "${PWD}/node_modules/.bin/bare-link" \
-              --target ios-arm64 \
-              --target ios-arm64-simulator \
-              --target ios-x64-simulator \
+              --preset ios\
               --out ${PWD}/app/addons \
               ${PWD}
         - name: Pack
           script: |
             PATH="${PATH}" "${PWD}/node_modules/.bin/bare-pack" \
-              --target ios-arm64 \
-              --target ios-arm64-simulator \
-              --target ios-x64-simulator \
-              --linked \
+              --preset ios\
               --base ${PWD} \
               --out ${PWD}/app/app.bundle \
               ${PWD}/app/js/app.js
             PATH="${PATH}" "${PWD}/node_modules/.bin/bare-pack" \
-              --target ios-arm64 \
-              --target ios-arm64-simulator \
-              --target ios-x64-simulator \
-              --linked \
+              --preset ios\
               --base ${PWD} \
               --out ${PWD}/app/push.bundle \
               ${PWD}/app/js/push.js
