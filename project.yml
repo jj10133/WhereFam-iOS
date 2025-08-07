@@ -38,6 +38,10 @@ targets:
         UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
         UIBackgroundModes:
           - location
+        NSLocalNetworkUsageDescription: "We need access to your local network to connect to nearby devices."
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true 
+
     entitlements:
       path: app/WhereFam.entitlements
       properties:
