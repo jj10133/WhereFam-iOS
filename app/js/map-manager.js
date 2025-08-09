@@ -30,7 +30,7 @@ async function getMaps(documentsPath) {
     
     const swarm = hyperswarmManager.getSwarm()
     const topic = Hypercore.discoveryKey(key)
-    swarm.join(topic)
+      swarm.join(topic, { server: false, client: true })
   } catch (error) {
     console.error('Error getting maps:', error)
     throw error
