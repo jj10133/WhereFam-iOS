@@ -28,12 +28,13 @@ struct HomeView: View {
     
     private let appUrl = "https://app.com"
     
-    @State var camera = MapViewCamera.center(CLLocationCoordinate2D(latitude: -1.94995, longitude: 30.05885), zoom: 1.0)
+    @State var camera = MapViewCamera.trackUserLocation()
     
     var body: some View {
         ZStack {
             if showMap {
-                MyMapView(position: $camera)
+//                MyMapView(position: $camera)
+                SimpleMapView()
             } else {
                 ProgressView()
             }
@@ -57,7 +58,7 @@ struct HomeView: View {
         .sheet(item: $selectedOption) { option in
             sheetView(for: option)
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.all)
     }
     
     //TODO: Change the name or improve the code
@@ -65,11 +66,9 @@ struct HomeView: View {
         Task {
             await startHyperswarm()
             ipcViewModel.modelContext = modelContext
-            //            startLocationUpdateTimer()
             startLocationUpdateTimer()
             
-            try await Task.sleep(for: .seconds(2))
-            try await Task.sleep(for: .seconds(4))
+            try await Task.sleep(for: .seconds(5))
             await MainActor.run {
                 self.showMap = true
             }
@@ -115,17 +114,19 @@ struct HomeView: View {
     
     private func sendUserLocation() {
         Task {
-            let message: [String: Any] = [
-                "action": "locationUpdate",
-                "data": [
-                    "id": ipcViewModel.publicKey,
-                    "name": UserDefaults.standard.string(forKey: "userName") ?? "",
-                    "latitude": LocationManager.shared.userLocation?.coordinate.latitude,
-                    "longitude": LocationManager.shared.userLocation?.coordinate.longitude
+            if let location = LocationManager.shared.userLocation {
+                let message: [String: Any] = [
+                    "action": "locationUpdate",
+                    "data": [
+                        "id": ipcViewModel.publicKey,
+                        "name": UserDefaults.standard.string(forKey: "userName") ?? "nil",
+                        "latitude": location.coordinate.latitude,
+                        "longitude": location.coordinate.longitude
+                    ]
                 ]
-            ]
-            print("Sending location update")
-            await ipcViewModel.writeToIPC(message: message)
+                print("Sending location update")
+                await ipcViewModel.writeToIPC(message: message)
+            }
         }
     }
     
@@ -145,25 +146,28 @@ struct HomeView: View {
 }
 
 struct MyMapView: View {
+    @EnvironmentObject var ipcViewModel: IPCViewModel
     @Binding var position: MapViewCamera
     @State var styleURL: URL = Bundle.main.url(forResource: "style", withExtension: "json")!
     
     var body: some View {
-        
-        MapView(styleURL: styleURL, camera: $position)
-        
-        
-        //            ForEach(Array(ipc.updatedPeopleLocation.values)) { person in
-        //                if let lat = person.latitude, let lng = person.longitude {
-        //                    Annotation(person.name ?? "", coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng), anchor: .bottom) {
-        //                        PersonAnnotationView(person: person)
-        //                    }
-        //                }
-        //            }
-        
-        
+        MapView(styleURL: styleURL, camera: $position) {
+            let allLocationsSource = ShapeSource(identifier: "all-locations") {
+                for person in ipcViewModel.updatedPeopleLocation.values {
+                    if let lat = person.latitude, let lng = person.longitude {
+                        MLNPointFeature(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng)) { feature in
+                            feature.attributes["name"] = person.name
+                        }
+                    }
+                }
+            }
+            
+            SymbolStyleLayer(identifier: "people-pins", source: allLocationsSource)
+                    .iconImage(UIImage(systemName: "person.fill")!)
+                    .text("name")
+                    
+        }
     }
-    
 }
 
 struct PersonAnnotationView: View {
