@@ -25,6 +25,23 @@ class LocationManager: NSObject, ObservableObject {
         manager.requestWhenInUseAuthorization()
         manager.requestAlwaysAuthorization()
     }
+    
+    func locationUpdates() -> AsyncStream<CLLocation> {
+        return AsyncStream { continuation in
+            let updates = CLLocationUpdate.liveUpdates()
+            Task {
+                do {
+                    for try await update in updates {
+                        if let location = update.location {
+                            continuation.yield(location)
+                        }
+                    }
+                } catch {
+                    continuation.finish()
+                }
+            }
+        }
+    }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
