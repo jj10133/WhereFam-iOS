@@ -33,6 +33,7 @@ targets:
     info:
       path: app/Info.plist
       properties:
+        CFBundleDisplayName: "WhereFam"
         NSLocationWhenInUseUsageDescription: We would like to access location for sharing to other members
         NSLocationAlwaysAndWhenInUseUsageDescription: We would like to access location for sharing to other members
         UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
