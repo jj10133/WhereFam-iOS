@@ -52,6 +52,7 @@ targets:
         NSLocalNetworkUsageDescription: "We need access to your local network to connect to nearby devices."
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true 
+        UIRequiresFullScreen: true
 
     entitlements:
       path: app/WhereFam.entitlements
