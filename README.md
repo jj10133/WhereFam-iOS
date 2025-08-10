@@ -1,4 +1,4 @@
-![Alt text](images/1024-Photoroom.png)
+![Alt text](images/Logo.png)
 
 ## Building
 
