@@ -163,7 +163,6 @@ struct MyMapView: View {
             
             SymbolStyleLayer(identifier: "people-pins", source: allLocationsSource)
                     .iconImage(UIImage(systemName: "person.fill")!)
-                    .text("name")
                     
         }
     }

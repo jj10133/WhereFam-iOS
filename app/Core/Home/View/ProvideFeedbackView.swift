@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProvideFeedbackView: View {
     var body: some View {
-        Text("Provide Feedback View")
+        Text("Provide Feedback ")
             .padding()
             .frame(maxWidth: .infinity, maxHeight: 200)
     }
