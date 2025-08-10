@@ -85,6 +85,7 @@ targets:
       - path: app/Core/Home/View/HomeView.swift
       - path: app/Core/Home/View/ProvideFeedbackView.swift
       - path: app/Core/Home/View/ShareIDView.swift
+      - path: app/Core/Home/View/SimpleMapView.swift
 
       - path: app/Core/Onboarding/View/FifthPageView.swift
         group: app/Core/Onboarding/View
