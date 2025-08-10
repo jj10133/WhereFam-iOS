@@ -8,5 +8,7 @@
 	<array>
 		<string>group.com.wherefam.ios</string>
 	</array>
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
 </dict>
 </plist>
