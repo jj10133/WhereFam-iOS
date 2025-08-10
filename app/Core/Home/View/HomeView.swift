@@ -135,8 +135,8 @@ struct HomeView: View {
             return AnyView(PeopleView())
         case .shareID:
             return AnyView(ShareIDView())
-        case .provideFeedback:
-            return AnyView(ProvideFeedbackView())
+        // case .provideFeedback:
+        //     return AnyView(ProvideFeedbackView())
         case .support:
             return AnyView(PaywallView())
             
@@ -210,19 +210,19 @@ struct MenuButton: View {
                 Label("Share Your ID", systemImage: "qrcode")
             }
             
-            Button(action: { openSheet(.provideFeedback) }) {
-                Label("Provide Feedback", systemImage: "exclamationmark.bubble")
-            }
+            // Button(action: { openSheet(.provideFeedback) }) {
+            //     Label("Provide Feedback", systemImage: "exclamationmark.bubble")
+            // }
             
             Button(action: { openSheet(.support) }) {
                 Label("Support App", systemImage: "wand.and.stars")
             }
             
-            ShareLink(item: "https://app.com") {
+            ShareLink(item: "https://wherefam.com") {
                 Label("Refer To Friend", systemImage: "square.and.arrow.up")
             }
             
-            if let reviewURL = URL(string: "https://apps.apple.com/app/id?action=write-review") {
+            if let reviewURL = URL(string: "https://apps.apple.com/app/id6749550634?action=write-review") {
                 Link(destination: reviewURL) {
                     Label("Rate App", systemImage: "link")
                 }
@@ -247,7 +247,7 @@ struct MenuButton: View {
 }
 
 enum MenuOption: Identifiable {
-    case people, shareID, provideFeedback, support
+    case people, shareID, support
     
     var id: String {
         switch self {
@@ -255,8 +255,8 @@ enum MenuOption: Identifiable {
             return "people"
         case .shareID:
             return "shareID"
-        case .provideFeedback:
-            return "provideFeedback"
+        // case .provideFeedback:
+        //     return "provideFeedback"
         case .support:
             return "support"
         }
