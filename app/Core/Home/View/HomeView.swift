@@ -52,7 +52,7 @@ struct HomeView: View {
         }
         .onDisappear(perform: stopLocationUpdateTimer)
         .task {
-            //joinPeersFromDatabase()
+            joinPeersFromDatabase()
         }
         .sheet(item: $selectedOption) { option in
             sheetView(for: option)
