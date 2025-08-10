@@ -36,11 +36,8 @@ targets:
         CFBundleDisplayName: "WhereFam"
         CFBundleShortVersionString: "1.0.0"
         CFBundleVersion: "1"
-
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-          - UIInterfaceOrientationLandscapeLeft
-          - UIInterfaceOrientationLandscapeRight
         UISupportedInterfaceOrientations~ipad:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
@@ -49,7 +46,7 @@ targets:
 
         NSLocationWhenInUseUsageDescription: We would like to access location for sharing to other members
         NSLocationAlwaysAndWhenInUseUsageDescription: We would like to access location for sharing to other members
-        UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
+        UILaunchStoryboardName: "LaunchScreen.storyboard"
         UIBackgroundModes:
           - location
         NSLocalNetworkUsageDescription: "We need access to your local network to connect to nearby devices."
@@ -90,6 +87,7 @@ targets:
       - path: app/push.bundle
       - path: app/style.json
       - path: app/WhereFam.storekit
+      - path: app/LaunchScreen.storyboard
 
       - path: app/Core/Root/ContentView.swift
         group: app/Core/Root
@@ -128,6 +126,11 @@ targets:
 
       - path: app/Models/People.swift
         group: app/Models
+
+    # configs:
+    #   Release:
+    #     buildSettings:
+    #       DEBUG_INFORMATION_FORMAT: "dwarf-with-dsym"
 
     scheme:
       preActions:
