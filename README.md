@@ -1,4 +1,9 @@
-![Alt text](images/Logo.png)
+
+<p align="center">
+  <img src="images/Logo.png" alt="Image 1" width="200" />
+  <img src="images/Mobile.png" alt="Image 2" width="200" />
+</p>
+
 
 ## Building
 
