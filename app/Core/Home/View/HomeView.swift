@@ -32,13 +32,12 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            if showMap {
+//            if showMap {
 //                MyMapView(position: $camera)
-                SimpleMapView()
-            } else {
-                ProgressView()
-            }
-            
+//            } else {
+//                ProgressView()
+//            }
+            SimpleMapView()
             VStack {
                 Spacer()
                 HStack {
@@ -53,7 +52,7 @@ struct HomeView: View {
         }
         .onDisappear(perform: stopLocationUpdateTimer)
         .task {
-            //joinPeersFromDatabase() // Uncomment if needed
+            //joinPeersFromDatabase()
         }
         .sheet(item: $selectedOption) { option in
             sheetView(for: option)
@@ -68,10 +67,10 @@ struct HomeView: View {
             ipcViewModel.modelContext = modelContext
             startLocationUpdateTimer()
             
-            try await Task.sleep(for: .seconds(5))
-            await MainActor.run {
-                self.showMap = true
-            }
+//            try await Task.sleep(for: .seconds(5))
+//            await MainActor.run {
+//                self.showMap = true
+//            }
         }
     }
     
