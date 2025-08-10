@@ -1,6 +1,10 @@
-# WhereFam on iOS
+# WhereFam
 
 Find friends and family in realtime globally,securely and privately with no middle man!!
+
+![Alt text](images/1024-Photoroom.png)
+![Alt text](images/FirstPage-portait.png)
+
 
 
 ## Building
