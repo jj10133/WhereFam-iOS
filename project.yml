@@ -34,6 +34,8 @@ targets:
       path: app/Info.plist
       properties:
         CFBundleDisplayName: "WhereFam"
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
         NSLocationWhenInUseUsageDescription: We would like to access location for sharing to other members
         NSLocationAlwaysAndWhenInUseUsageDescription: We would like to access location for sharing to other members
         UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
