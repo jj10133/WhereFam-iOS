@@ -36,6 +36,17 @@ targets:
         CFBundleDisplayName: "WhereFam"
         CFBundleShortVersionString: "1.0.0"
         CFBundleVersion: "1"
+
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+
         NSLocationWhenInUseUsageDescription: We would like to access location for sharing to other members
         NSLocationAlwaysAndWhenInUseUsageDescription: We would like to access location for sharing to other members
         UILaunchScreen: app/Assets.xcassets/AppIcon.appIconset
@@ -150,6 +161,10 @@ targets:
     info:
       path: app/NotificationServiceExtension.Info.plist
       properties:
+        CFBundleDisplayName: "WhereFam"
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+
         NSExtension:
           NSExtensionPointIdentifier: com.apple.usernotifications.service
           NSExtensionPrincipalClass: NotificationServiceExtension.NotificationService
