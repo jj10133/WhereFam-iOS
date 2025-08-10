@@ -16,7 +16,7 @@ ipc.on('start', async (data) => {
     await hyperswarmManager.initializeHyperswarm(keyPair)
 
     // Setup and register all protocols
-    await mapManager.getMaps(documentsPath)
+//    await mapManager.getMaps(documentsPath)
     locationManager.setupLocationProtocol()
     
     console.log('All managers initialized and protocols registered.')
