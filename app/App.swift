@@ -16,7 +16,7 @@ struct App: SwiftUI.App {
             ContentView()
                 .onAppear {
                     worker.start()
-                    ipcViewModel.configure(with: worker.ipc)
+                    ipcViewModel.configure(with: worker.ipc, modelContext: modelContext)
                     Task {
                         await ipcViewModel.readFromIPC()
                     }
