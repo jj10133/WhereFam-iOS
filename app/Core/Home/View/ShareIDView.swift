@@ -8,6 +8,17 @@
 import SwiftUI
 import CoreImage.CIFilterBuiltins
 
+extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
 struct ShareIDView: View {
     @EnvironmentObject var ipcViewModel: IPCViewModel
     @State private var qrCodeImage: UIImage?
@@ -32,7 +43,9 @@ struct ShareIDView: View {
         .onChange(of: ipcViewModel.publicKey) { oldValue, newValue in
             generateQRCode(from: oldValue.isEmpty ? newValue : oldValue)
         }
-        .presentationDetents([.medium])
+        .if(UIDevice.current.userInterfaceIdiom == .phone) { view in
+            view.presentationDetents([.medium])
+        }
         .presentationDragIndicator(.visible)
     }
     
