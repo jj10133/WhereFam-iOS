@@ -91,7 +91,7 @@ targets:
       - path: app/NotificationService.swift
       - path: app/push.bundle
       - path: app/style.json
-      - path: app/WhereFam.storekit
+      # - path: app/WhereFam.storekit
       - path: app/LaunchScreen.storyboard
 
       - path: app/Core/Root/ContentView.swift
@@ -103,6 +103,7 @@ targets:
       - path: app/Core/Home/View/ProvideFeedbackView.swift
       - path: app/Core/Home/View/ShareIDView.swift
       - path: app/Core/Home/View/SimpleMapView.swift
+      - path: app/Core/Home/View/ThanksView.swift
 
       - path: app/Core/Onboarding/View/FifthPageView.swift
         group: app/Core/Onboarding/View
