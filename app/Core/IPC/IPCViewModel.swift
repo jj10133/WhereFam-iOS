@@ -141,6 +141,9 @@ class IPCViewModel: ObservableObject {
     func handlePeerDisconnected(_ incomingMessage: IncomingMessage) {
         if let dataDictionary = incomingMessage.data.value as? [String: Any],
            let publicKey = dataDictionary["peerKey"] as? String {
+            DispatchQueue.main.async {
+                self.people.removeAll { $0.id == publicKey }
+            }
             SQLiteManager.shared.deletePerson(id: publicKey)
             
         } else {
