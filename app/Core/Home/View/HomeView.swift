@@ -6,18 +6,13 @@
 //
 
 import SwiftUI
-import SwiftData
 import MapLibre
-import MapLibreSwiftUI
-import MapLibreSwiftDSL
 import CoreLocation
 import RevenueCat
 import RevenueCatUI
 
 struct HomeView: View {
     @EnvironmentObject var ipcViewModel: IPCViewModel
-    @Environment(\.modelContext) private var modelContext
-    @Query var people: [People]
     
     @State private var isPressed = false
     @State private var isSheetPresented: Bool = false
@@ -25,18 +20,10 @@ struct HomeView: View {
     
     @State private var timer: Timer? = nil
     @State private var showMap: Bool = false
-    
-    private let appUrl = "https://app.com"
-    
-    @State var camera = MapViewCamera.trackUserLocation()
+    @State private var isSubscribed: Bool = false
     
     var body: some View {
         ZStack {
-//            if showMap {
-//                MyMapView(position: $camera)
-//            } else {
-//                ProgressView()
-//            }
             SimpleMapView()
             VStack {
                 Spacer()
@@ -49,11 +36,9 @@ struct HomeView: View {
         .onAppear {
             onAppear()
             LocationManager.shared.requestLocation()
+            checkSubscriptionStatus()
         }
         .onDisappear(perform: stopLocationUpdateTimer)
-        .task {
-            joinPeersFromDatabase()
-        }
         .sheet(item: $selectedOption) { option in
             sheetView(for: option)
         }
@@ -64,13 +49,10 @@ struct HomeView: View {
     private func onAppear() {
         Task {
             await startHyperswarm()
-            ipcViewModel.modelContext = modelContext
             startLocationUpdateTimer()
             
-//            try await Task.sleep(for: .seconds(5))
-//            await MainActor.run {
-//                self.showMap = true
-//            }
+            try await Task.sleep(for: .seconds(5))
+            joinPeersFromDatabase()
         }
     }
     
@@ -98,15 +80,19 @@ struct HomeView: View {
     }
     
     private func joinPeersFromDatabase() {
-        Task {
-            for member in people {
-                let message: [String: Any] = [
-                    "action": "joinPeer",
-                    "data": member.id
-                ]
-                
-                print(member.id)
-                await ipcViewModel.writeToIPC(message: message)
+        let savedPeople = SQLiteManager.shared.fetchAllPeople()
+        
+        if !savedPeople.isEmpty {
+            Task {
+                for member in savedPeople {
+                    let message: [String: Any] = [
+                        "action": "joinPeer",
+                        "data": member.id
+                    ]
+                    
+                    print("Joining peer: \(member.id)")
+                    await ipcViewModel.writeToIPC(message: message)
+                }
             }
         }
     }
@@ -129,68 +115,35 @@ struct HomeView: View {
         }
     }
     
+    private func checkSubscriptionStatus() {
+        Purchases.shared.getCustomerInfo { (customerInfo, error) in
+            if let error = error {
+                print("Error fetching customer info: \(error.localizedDescription)")
+                return
+            }
+            
+            if let customerInfo = customerInfo {
+                self.isSubscribed = customerInfo.entitlements["Tip"]?.isActive == true
+            }
+        }
+    }
+    
+    @ViewBuilder
     private func sheetView(for option: MenuOption) -> some View {
         switch option {
         case .people:
-            return AnyView(PeopleView())
+            PeopleView()
         case .shareID:
-            return AnyView(ShareIDView())
-        // case .provideFeedback:
-        //     return AnyView(ProvideFeedbackView())
+            ShareIDView()
+            // case .provideFeedback:
+            //     return AnyView(ProvideFeedbackView())
         case .support:
-            return AnyView(PaywallView())
-            
-        }
-    }
-}
-
-struct MyMapView: View {
-    @EnvironmentObject var ipcViewModel: IPCViewModel
-    @Binding var position: MapViewCamera
-    @State var styleURL: URL = Bundle.main.url(forResource: "style", withExtension: "json")!
-    
-    var body: some View {
-        MapView(styleURL: styleURL, camera: $position) {
-            let allLocationsSource = ShapeSource(identifier: "all-locations") {
-                for person in ipcViewModel.updatedPeopleLocation.values {
-                    if let lat = person.latitude, let lng = person.longitude {
-                        MLNPointFeature(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lng)) { feature in
-                            feature.attributes["name"] = person.name
-                        }
-                    }
-                }
+            if isSubscribed {
+                ThanksView()
+            } else {
+                PaywallView()
             }
-            
-            SymbolStyleLayer(identifier: "people-pins", source: allLocationsSource)
-                    .iconImage(UIImage(systemName: "person.fill")!)
-                    
         }
-    }
-}
-
-struct PersonAnnotationView: View {
-    var person: LocationUpdates
-    
-    var body: some View {
-        VStack(spacing: 5) {
-            Circle()
-                .frame(width: 40, height: 40)
-                .foregroundColor(Color.blue)
-                .overlay(Text(person.name?.prefix(1) ?? "?")
-                    .font(.headline)
-                    .foregroundColor(.white))
-            
-            Text(person.name ?? "")
-                .font(.caption)
-                .foregroundColor(.white)
-                .padding(5)
-                .background(Color.blue.opacity(0.8), in: Capsule())
-                .shadow(radius: 3)
-                .scaleEffect(0.9)
-        }
-        .padding(5)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-        .shadow(radius: 5)
     }
 }
 
@@ -254,8 +207,8 @@ enum MenuOption: Identifiable {
             return "people"
         case .shareID:
             return "shareID"
-        // case .provideFeedback:
-        //     return "provideFeedback"
+            // case .provideFeedback:
+            //     return "provideFeedback"
         case .support:
             return "support"
         }
@@ -263,9 +216,7 @@ enum MenuOption: Identifiable {
 }
 
 #Preview {
-    let container = try! ModelContainer(for: People.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     
     HomeView()
         .environmentObject(IPCViewModel())
-        .modelContainer(container)
 }

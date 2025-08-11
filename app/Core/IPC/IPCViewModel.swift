@@ -7,20 +7,17 @@
 
 import Foundation
 import BareKit
-import SwiftData
 
 class IPCViewModel: ObservableObject {
     var ipc: IPC?
-    var modelContext: ModelContext?
     
     @Published var publicKey: String = ""
-    @Published var updatedPeopleLocation: [String: LocationUpdates] = [:]
+    @Published var people: [People] = []
     
     private var ipcBuffer = ""
     
-    func configure(with ipc: IPC?, modelContext: ModelContext?) {
+    func configure(with ipc: IPC?) {
         self.ipc = ipc
-        self.modelContext = modelContext
     }
     
     func readFromIPC() async {
@@ -92,6 +89,8 @@ class IPCViewModel: ObservableObject {
             handlePublicKeyRequest(incomingMessage)
         case "locationUpdate":
             handleLocationUpdate(incomingMessage)
+        case "peerDisconnected":
+            handlePeerDisconnected(incomingMessage)
         default:
             print("Unknown action: \(incomingMessage.action)")
         }
@@ -122,30 +121,32 @@ class IPCViewModel: ObservableObject {
             return
         }
         
-        let updatedPerson = LocationUpdates(id: newId, name: name, latitude: latitude, longitude: longitude)
+        let personToUpdate = People(id: newId, name: name, latitude: latitude, longitude: longitude)
+        
+        if SQLiteManager.shared.findPerson(id: newId) != nil {
+            SQLiteManager.shared.updatePerson(personToUpdate)
+        } else {
+            SQLiteManager.shared.insertPerson(personToUpdate)
+        }
+        
+        self.refreshPeople()
+    }
+    
+    func refreshPeople() {
         DispatchQueue.main.async {
-            self.updatedPeopleLocation[newId] = updatedPerson
+            self.people = SQLiteManager.shared.fetchAllPeople()
         }
-        
-        let fetchDescriptor = FetchDescriptor(
-            predicate: #Predicate<People> { $0.id == newId }
-        )
-        
-        do {
-            if let person = try modelContext?.fetch(fetchDescriptor).first {
-                person.name = name
-                person.latitude = latitude
-                person.longitude = longitude
-            } else {
-                modelContext?.insert(People(id: newId, name: name, latitude: latitude, longitude: longitude))
-            }
-            try modelContext?.save()
-        } catch(let error) {
-            print("Error occurred: \(error.localizedDescription)")
+    }
+    
+    func handlePeerDisconnected(_ incomingMessage: IncomingMessage) {
+        if let dataDictionary = incomingMessage.data.value as? [String: Any],
+           let publicKey = dataDictionary["peerKey"] as? String {
+            SQLiteManager.shared.deletePerson(id: publicKey)
+            
+        } else {
+            print("Invalid format or missing publicKey in the data.")
         }
-        
-        // TODO: Need to save but swiftdata is not working as expected to render the UI
-        // Did try actor approach not working!! Help needed
+        refreshPeople()
     }
     
 }
@@ -214,18 +215,4 @@ class IPCViewModel: ObservableObject {
 struct IncomingMessage: Codable {
     let action: String
     let data: AnyCodable
-}
-
-class LocationUpdates: Identifiable, ObservableObject {
-    @Published var id: String
-    @Published var name: String?
-    @Published var latitude: Double?
-    @Published var longitude: Double?
-    
-    init(id: String, name: String? = nil, latitude: Double? = nil, longitude: Double? = nil) {
-        self.id = id
-        self.name = name
-        self.latitude = latitude
-        self.longitude = longitude
-    }
 }
