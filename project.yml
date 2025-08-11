@@ -9,12 +9,15 @@ packages:
   BareKit:
     url: https://github.com/holepunchto/bare-kit-swift
     branch: main
-  swiftui-dsl:
-    url: https://github.com/maplibre/swiftui-dsl
-    branch: main
+  MapLibreNative:
+    url: https://github.com/maplibre/maplibre-gl-native-distribution
+    from: 6.18.0
   purchases-ios-spm:
     url: https://github.com/RevenueCat/purchases-ios
     from: 5.34.0
+  SQLite.swift:
+    url: https://github.com/stephencelis/SQLite.swift
+    from: 0.15.4
 
 targets:
   App:
@@ -72,12 +75,13 @@ targets:
       - package: BareKit
       - framework: app/frameworks/BareKit.xcframework
       - target: NotificationServiceExtension
-      - package: swiftui-dsl
-        product: MapLibreSwiftDSL
-        product: MapLibreSwiftUI
+      - package: MapLibreNative
+        product: MapLibre
       - package: purchases-ios-spm
         product: RevenueCat
         product: RevenueCatUI
+      - package: SQLite.swift
+        product: SQLite
 
     sources:
       - path: app/App.swift
@@ -124,6 +128,7 @@ targets:
 
       - path: app/Manager/LocationManager.swift
         group: app/Manager
+      - path: app/Manager/SQLiteManager.swift
 
       - path: app/Models/People.swift
         group: app/Models
