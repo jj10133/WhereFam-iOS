@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct PeopleView: View {
     @EnvironmentObject var ipcViewModel: IPCViewModel
@@ -14,14 +13,11 @@ struct PeopleView: View {
     @State private var newMemberID: String = ""
     @State private var showingAddMemberAlert = false
     
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \People.name) private var people: [People]
-    
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    ForEach(people, id: \.id) { member in
+                    ForEach(ipcViewModel.people, id: \.id) { member in
                         Text(member.name ?? "")
                     }
                     .onDelete(perform: deleteMember)
@@ -43,6 +39,8 @@ struct PeopleView: View {
             }
             .alert("Add People", isPresented: $showingAddMemberAlert) {
                 TextField("Enter ID", text: $newMemberID)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
                     .padding()
                 Button("Save") {
                     addPeerToSwarm()
@@ -57,8 +55,10 @@ struct PeopleView: View {
             }
             .presentationDetents([.medium, .large])
         }
+        .onAppear {
+            ipcViewModel.refreshPeople()
+        }
     }
-
     
     private func addPeerToSwarm() {
         Task {
@@ -71,20 +71,33 @@ struct PeopleView: View {
             self.newMemberID = ""
         }
     }
-   
+    
+    private func leavePeerFromSwarm(memberID: String) {
+        Task {
+            let message: [String: Any] = [
+                "action": "leavePeer",
+                "data": memberID
+            ]
+            
+            await ipcViewModel.writeToIPC(message: message)
+        }
+    }
+    
     
     private func createNewMember() {
         let newMember = People(id: newMemberID)
-        modelContext.insert(newMember)
-        try? modelContext.save()
+        SQLiteManager.shared.insertPerson(newMember)
+        ipcViewModel.refreshPeople()
     }
     
     private func deleteMember(at offsets: IndexSet) {
         for index in offsets {
-            let member = people[index]
-            modelContext.delete(member)
-            try? modelContext.save()
+            let member = ipcViewModel.people[index]
+            leavePeerFromSwarm(memberID: member.id)
+            SQLiteManager.shared.deletePerson(id: member.id)
         }
+        
+        ipcViewModel.refreshPeople()
     }
 }
 
