@@ -9,14 +9,13 @@ struct App: SwiftUI.App {
     @StateObject private var ipcViewModel = IPCViewModel()
     
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.modelContext) private var modelContext
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .onAppear {
                     worker.start()
-                    ipcViewModel.configure(with: worker.ipc, modelContext: modelContext)
+                    ipcViewModel.configure(with: worker.ipc)
                     Task {
                         await ipcViewModel.readFromIPC()
                     }
@@ -26,7 +25,6 @@ struct App: SwiftUI.App {
                 }
         }
         .environmentObject(ipcViewModel)
-        .modelContainer(for: People.self)
         .onChange(of: scenePhase) { phase in
             switch phase {
             case .background:
