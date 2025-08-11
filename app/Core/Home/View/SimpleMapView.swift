@@ -35,13 +35,13 @@ struct SimpleMapView: UIViewRepresentable {
     
     private func updateAnnotations(for mapView: MLNMapView) {
         var newAnnotations = [MLNAnnotation]()
-        for (id, locationUpdate) in ipcViewModel.updatedPeopleLocation {
-            if let lat = locationUpdate.latitude, let lon = locationUpdate.longitude {
+        for person in ipcViewModel.people {
+            if let lat = person.latitude, let lon = person.longitude {
                 let annotation = PersonAnnotation()
                 annotation.coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-                annotation.title = locationUpdate.name
-                annotation.name = locationUpdate.name
-                annotation.annotationID = id
+                annotation.title = person.name
+                annotation.name = person.name
+                annotation.annotationID = person.id
                 
                 annotation.image = UIImage(systemName: "person.circle.fill")
                 newAnnotations.append(annotation)
