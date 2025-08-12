@@ -123,11 +123,6 @@ class IPCViewModel: ObservableObject {
         
         let person = People(id: newId, name: name, latitude: latitude, longitude: longitude)
         SQLiteManager.shared.savePerson(person)
-        let uniquePeople = SQLiteManager.shared.fetchAllPeople()
-        for uniquePerson in uniquePeople {
-            print(uniquePerson)
-        }
-        print("Fetched people count: \(uniquePeople.count)")
         refreshPeople()
     }
     
