@@ -16,8 +16,8 @@ The goal of the project is to enable real-time location sharing without relying 
 
 ## Building
 - [ ] Clone the project
-- [ ] Download the BareKit and follow the steps below
-- [ ] Run `npm install`
+- [ ] Follow the steps below
+- [ ] Don't forget to run `npm install`
 
 To keep the build process fast and efficient, the project relies on a Bare Kit prebuild being available in the [`app/frameworks/`](app/frameworks) directory. Prior to building the project, you must therefore either clone and compile Bare Kit from source, or download the latest prebuild from GitHub. The latter is easily accomplished using the [GitHub CLI](https://cli.github.com):
 
