@@ -86,7 +86,7 @@ struct PeopleView: View {
     
     private func createNewMember() {
         let newMember = People(id: newMemberID)
-        SQLiteManager.shared.insertPerson(newMember)
+        SQLiteManager.shared.savePerson(newMember)
         ipcViewModel.refreshPeople()
     }
     
