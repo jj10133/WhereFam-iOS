@@ -121,19 +121,19 @@ class IPCViewModel: ObservableObject {
             return
         }
         
-        let personToUpdate = People(id: newId, name: name, latitude: latitude, longitude: longitude)
-        
-        if SQLiteManager.shared.findPerson(id: newId) != nil {
-            SQLiteManager.shared.updatePerson(personToUpdate)
-        } else {
-            SQLiteManager.shared.insertPerson(personToUpdate)
+        let person = People(id: newId, name: name, latitude: latitude, longitude: longitude)
+        SQLiteManager.shared.savePerson(person)
+        let uniquePeople = SQLiteManager.shared.fetchAllPeople()
+        for uniquePerson in uniquePeople {
+            print(uniquePerson)
         }
-        
-        self.refreshPeople()
+        print("Fetched people count: \(uniquePeople.count)")
+        refreshPeople()
     }
     
     func refreshPeople() {
         DispatchQueue.main.async {
+            self.people = []
             self.people = SQLiteManager.shared.fetchAllPeople()
         }
     }
