@@ -42,8 +42,11 @@ ipc.on('joinPeer', async (data) => {
     const peerPublicKey = data;
     console.log('Received "joinPeer" event for:', peerPublicKey);
     try {
-        //        await hyperbeeManager.addPeer(peerPublicKey);
         console.log("Key before joining the swarm" + peerPublicKey)
+//        const leftPeers = hyperbeeManager.getLeftPeers();
+//        if (leftPeers.has(peerPublicKey)) {
+//            await hyperbeeManager.removeLeftPeer(peerPublicKey)
+//        }
         hyperswarmManager.joinPeer(peerPublicKey);
     } catch (error) {
         console.error('Failed to join peer:', error);
@@ -54,9 +57,8 @@ ipc.on('leavePeer', async (data) => {
     const peerPublicKey = data;
     console.log('Received "leavePeer" event for:', peerPublicKey);
     try {
-        //        await hyperbeeManager.removePeer(peerPublicKey);
+        await hyperswarmManager.closeConnection(peerPublicKey);
         hyperswarmManager.leavePeer(peerPublicKey);
-        hyperswarmManager.closeConnection(peerPublicKey);
     } catch (error) {
         console.error('Failed to leave peer:', error);
     }
