@@ -52,6 +52,7 @@ struct HomeView: View {
             startLocationUpdateTimer()
             
             try await Task.sleep(for: .seconds(5))
+            getPublicKey()
             joinPeersFromDatabase()
         }
     }
@@ -65,6 +66,18 @@ struct HomeView: View {
             ]
         ]
         await ipcViewModel.writeToIPC(message: message)
+    }
+    
+    private func getPublicKey() {
+        Task {
+            if ipcViewModel.publicKey.isEmpty {
+                let message: [String: Any] = [
+                    "action": "requestPublicKey",
+                    "data": [:]
+                ]
+                await ipcViewModel.writeToIPC(message: message)
+            }
+        }
     }
     
     // TODO: Use AsynSequence rather than this timer lol!!
