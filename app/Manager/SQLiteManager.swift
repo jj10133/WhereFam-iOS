@@ -76,37 +76,23 @@ class SQLiteManager {
         return nil
     }
     
-    func insertPerson(_ newPerson: People) {
-        let insert = people.insert(
-            id <- newPerson.id,
-            name <- newPerson.name,
-            image <- newPerson.image,
-            latitude <- newPerson.latitude,
-            longitude <- newPerson.longitude
+    func savePerson(_ person: People) {
+        guard !person.id.isEmpty else {
+            print("Error: Attempt to save person with empty ID.")
+            return
+        }
+        let upsert = people.insert(or: .replace,
+                                   id <- person.id,
+                                   name <- person.name,
+                                   image <- person.image,
+                                   latitude <- person.latitude,
+                                   longitude <- person.longitude
         )
         do {
-            try db.run(insert)
-            print("Successfully inserted person: \(newPerson.id)")
+            try db.run(upsert)
+            print("Successfully saved (inserted or updated) person: \(person.id)")
         } catch {
-            print("Failed to insert person: \(error)")
-        }
-    }
-    
-    func updatePerson(_ updatedPerson: People) {
-        let personToUpdate = people.filter(id == updatedPerson.id)
-        do {
-            if try db.run(personToUpdate.update(
-                name <- updatedPerson.name,
-                image <- updatedPerson.image,
-                latitude <- updatedPerson.latitude,
-                longitude <- updatedPerson.longitude
-            )) > 0 {
-                print("Successfully updated person: \(updatedPerson.id)")
-            } else {
-                print("No person found to update with ID: \(updatedPerson.id)")
-            }
-        } catch {
-            print("Failed to update person: \(error)")
+            print("Failed to save person: \(error)")
         }
     }
     
