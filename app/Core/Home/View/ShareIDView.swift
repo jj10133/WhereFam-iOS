@@ -37,7 +37,6 @@ struct ShareIDView: View {
             }
         }
         .onAppear {
-            getPublicKey()
             generateQRCode(from: ipcViewModel.publicKey)
         }
         .onChange(of: ipcViewModel.publicKey) { oldValue, newValue in
@@ -47,18 +46,6 @@ struct ShareIDView: View {
             view.presentationDetents([.medium])
         }
         .presentationDragIndicator(.visible)
-    }
-    
-    private func getPublicKey() {
-        Task {
-            if ipcViewModel.publicKey.isEmpty {
-                let message: [String: Any] = [
-                    "action": "requestPublicKey",
-                    "data": [:]
-                ]
-                await ipcViewModel.writeToIPC(message: message)
-            }
-        }
     }
     
     private func generateQRCode(from string: String) {
