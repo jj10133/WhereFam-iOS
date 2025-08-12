@@ -103,7 +103,6 @@ struct HomeView: View {
                         "data": member.id
                     ]
                     
-                    print("Joining peer: \(member.id)")
                     await ipcViewModel.writeToIPC(message: message)
                 }
             }
@@ -122,7 +121,6 @@ struct HomeView: View {
                         "longitude": location.coordinate.longitude
                     ]
                 ]
-                print("Sending location update")
                 await ipcViewModel.writeToIPC(message: message)
             }
         }

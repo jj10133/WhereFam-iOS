@@ -39,14 +39,8 @@ ipc.on('requestPublicKey', async () => {
 })
 
 ipc.on('joinPeer', async (data) => {
-    const peerPublicKey = data;
-    console.log('Received "joinPeer" event for:', peerPublicKey);
+    const peerPublicKey = data
     try {
-        console.log("Key before joining the swarm" + peerPublicKey)
-//        const leftPeers = hyperbeeManager.getLeftPeers();
-//        if (leftPeers.has(peerPublicKey)) {
-//            await hyperbeeManager.removeLeftPeer(peerPublicKey)
-//        }
         hyperswarmManager.joinPeer(peerPublicKey);
     } catch (error) {
         console.error('Failed to join peer:', error);

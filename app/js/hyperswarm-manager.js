@@ -34,7 +34,6 @@ async function initializeHyperswarm(keyPair) {
 
         swarm.listen()
         swarm.on('connection', handleConnection)
-        console.log('Hyperswarm initialized and listening.')
         return swarm
     } catch (error) {
         console.error('Error initializing Hyperswarm:', error)
@@ -44,7 +43,6 @@ async function initializeHyperswarm(keyPair) {
 
 function handleConnection(conn, info) {
     const peerPublicKey = b4a.toString(info.publicKey, 'base64')
-    console.log('New connection established with peer:', peerPublicKey)
     
     if(tempLeaveCache.has(peerPublicKey)) {
         conn.destroy()
@@ -79,7 +77,6 @@ async function closeConnection(peerPublicKey) {
     if (connectionIndex !== -1) {
         const connection = connections[connectionIndex]
         connection.mux.stream.destroy()
-        console.log(`Manually closed connection with peer: ${peerPublicKey}`)
     } else {
         console.log(`No active connection found for peer: ${peerPublicKey}`)
     }
@@ -104,7 +101,6 @@ function joinPeer(peerPublicKey) {
         tempLeaveCache.delete(peerPublicKey)
         const publicKeyBuffer = b4a.from(peerPublicKey, 'base64');
         swarm.joinPeer(publicKeyBuffer)
-        console.log('Attempting to join peer:', peerPublicKey)
     } catch (error) {
         console.error('Error joining peer:', error)
     }
@@ -118,7 +114,6 @@ function leavePeer(peerPublicKey) {
     try {
         tempLeaveCache.add(peerPublicKey)
         swarm.leavePeer(b4a.from(peerPublicKey, 'base64'))
-        console.log('Attempting to leave peer:', peerPublicKey)
     } catch (error) {
         console.error('Error leaving peer:', error)
     }

@@ -11,10 +11,10 @@ function setupLocationProtocol() {
         const channel = mux.createChannel({
             protocol: locationChannelProtocol,
             onopen() {
-                console.log(`Location protocol channel opened with ${peerPublicKey}.`)
+//                console.log(`Location protocol channel opened with ${peerPublicKey}.`)
             },
             onclose() {
-                console.log(`Location protocol channel closed with ${peerPublicKey}.`)
+//                console.log(`Location protocol channel closed with ${peerPublicKey}.`)
                 locationChannels.delete(peerPublicKey)
             }
         })

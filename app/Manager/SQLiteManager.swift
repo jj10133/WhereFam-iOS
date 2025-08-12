@@ -90,7 +90,6 @@ class SQLiteManager {
         )
         do {
             try db.run(upsert)
-            print("Successfully saved (inserted or updated) person: \(person.id)")
         } catch {
             print("Failed to save person: \(error)")
         }
