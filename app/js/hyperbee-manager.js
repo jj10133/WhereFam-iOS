@@ -11,7 +11,6 @@ const b4a = require('b4a')
 const sodium = require('sodium-native')
 
 let db = null
-const PEER_KEY_PREFIX = 'peer-'
 
 async function initializeHyperbee(documentsPath) {
     if (db) {
@@ -67,31 +66,8 @@ async function getPublicKeyFromDb() {
     return publicKeyBase64 ? publicKeyBase64.value : null
 }
 
-async function addPeer(peerPublicKey) {
-    if (!db) throw new Error('Hyperbee not initialized.');
-    await db.put(PEER_KEY_PREFIX + peerPublicKey, Date.now());
-}
-
-async function removePeer(peerPublicKey) {
-    if (!db) throw new Error('Hyperbee not initialized.');
-    await db.del(PEER_KEY_PREFIX + peerPublicKey);
-}
-
-async function getKnownPeers() {
-    if (!db) throw new Error('Hyperbee not initialized.');
-    const peers = new Set();
-    for await (const { key } of db.createReadStream({ gte: PEER_KEY_PREFIX, lt: PEER_KEY_PREFIX + '\xff' })) {
-        const peerPublicKey = key.toString().substring(PEER_KEY_PREFIX.length);
-        peers.add(peerPublicKey);
-    }
-    return peers;
-}
-
 module.exports = {
     initializeHyperbee,
     getOrCreateKeyPair,
-    getPublicKeyFromDb,
-    addPeer,
-    removePeer,
-    getKnownPeers
+    getPublicKeyFromDb
 }
