@@ -4,8 +4,20 @@
   <img src="images/Mobile.png" alt="Image 2" width="200" />
 </p>
 
+## About
+The goal of the project is to enable real-time location sharing without relying on the cloud, utilizing a peer-to-peer (P2P) connection instead!! This was possible due to hard work of [Holepunch](https://holepunch.to/) Team ([Mathias](https://github.com/mafintosh) huge credits to him for his dedication in P2P space, [Lord Kasper](https://github.com/kasperisager), [Sean](https://github.com/lejeunerenard) and sorry to others if I have forgotten to mention)
+
+## Roadmap
+- [ ] Group Based location sharing
+- [ ] Places alerts
+- [ ] Location History
+- [ ] Local Roadside Assitance
+- [ ] SOS alerts / Emergency services
 
 ## Building
+- [ ] Clone the project
+- [ ] Follow the steps below
+- [ ] Don't forget to run `npm install`
 
 To keep the build process fast and efficient, the project relies on a Bare Kit prebuild being available in the [`app/frameworks/`](app/frameworks) directory. Prior to building the project, you must therefore either clone and compile Bare Kit from source, or download the latest prebuild from GitHub. The latter is easily accomplished using the [GitHub CLI](https://cli.github.com):
 
@@ -42,7 +54,3 @@ Make sure to regenerate the project files after editing the addons list:
 ```console
 xcodegen generate
 ```
-
-## License
-
-Apache-2.0
