@@ -8,6 +8,7 @@ const ipc = require('./ipc')
 let swarm = null
 const protocolHandlers = new Map()
 let connections = []
+let tempLeaveCache = new Set()
 
 async function initializeHyperswarm(keyPair) {
     if (swarm) {
@@ -31,11 +32,6 @@ async function initializeHyperswarm(keyPair) {
             // }
         })
 
-        const knownPeers = await hyperbeeManager.getKnownPeers()
-
-        for (const peerKey of knownPeers) {
-            joinPeer(peerKey)
-        }
         swarm.listen()
         swarm.on('connection', handleConnection)
         console.log('Hyperswarm initialized and listening.')
@@ -49,6 +45,11 @@ async function initializeHyperswarm(keyPair) {
 function handleConnection(conn, info) {
     const peerPublicKey = b4a.toString(info.publicKey, 'base64')
     console.log('New connection established with peer:', peerPublicKey)
+    
+    if(tempLeaveCache.has(peerPublicKey)) {
+        conn.destroy()
+        return
+    }
 
     // Use protomux to multiplex on this connection
     const mux = new Protomux(conn)
@@ -59,16 +60,11 @@ function handleConnection(conn, info) {
         handler(mux, peerPublicKey)
     }
 
-    conn.on('close', () => {
+    conn.on('close', async () => {
         connections = connections.filter((m) => m !== mux)
         ipc.send('peerDisconnected', { peerKey: peerPublicKey })
-        console.log("Deleted peer ID" + peerPublicKey)
-        console.log(
-            'Connection closed with peer:',
-            peerPublicKey,
-            '. Remaining connections:',
-            connections.length
-        )
+        closeConnection(peerPublicKey)
+        tempLeaveCache.add(peerPublicKey)
     })
 
     conn.on('error', (e) =>
@@ -76,13 +72,12 @@ function handleConnection(conn, info) {
     )
 }
 
-function closeConnection(peerPublicKey) {
+async function closeConnection(peerPublicKey) {
     const connectionIndex = connections.findIndex(
         (c) => c.publicKey === peerPublicKey
     )
     if (connectionIndex !== -1) {
         const connection = connections[connectionIndex]
-        // This will trigger the 'close' event handler, which cleans up the connections array
         connection.mux.stream.destroy()
         console.log(`Manually closed connection with peer: ${peerPublicKey}`)
     } else {
@@ -106,7 +101,7 @@ function joinPeer(peerPublicKey) {
         return
     }
     try {
-
+        tempLeaveCache.delete(peerPublicKey)
         const publicKeyBuffer = b4a.from(peerPublicKey, 'base64');
         swarm.joinPeer(publicKeyBuffer)
         console.log('Attempting to join peer:', peerPublicKey)
@@ -121,6 +116,7 @@ function leavePeer(peerPublicKey) {
         return
     }
     try {
+        tempLeaveCache.add(peerPublicKey)
         swarm.leavePeer(b4a.from(peerPublicKey, 'base64'))
         console.log('Attempting to leave peer:', peerPublicKey)
     } catch (error) {
