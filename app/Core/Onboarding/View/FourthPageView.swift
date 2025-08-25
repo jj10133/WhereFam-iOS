@@ -36,7 +36,7 @@ struct FourthPageView: View {
             Button(action: {
                 LocationManager.shared.requestLocation()
             }) {
-                Text("Allow Location Access")
+                Text("Continue")
                     .font(.title2)
                     .padding()
                     .frame(maxWidth: .infinity)
