@@ -29,14 +29,18 @@ struct HomeView: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    MenuButton(isPressed: $isPressed, selectedOption: $selectedOption, isSheetPresented: $isSheetPresented)
+                    MenuButton(
+                        isPressed: $isPressed,
+                        selectedOption: $selectedOption,
+                        isSheetPresented: $isSheetPresented,
+                        isSubscribed: $isSubscribed
+                    )
                 }
             }
         }
         .onAppear {
             onAppear()
             LocationManager.shared.requestLocation()
-            checkSubscriptionStatus()
         }
         .onDisappear(perform: stopLocationUpdateTimer)
         .sheet(item: $selectedOption) { option in
@@ -126,19 +130,6 @@ struct HomeView: View {
         }
     }
     
-    private func checkSubscriptionStatus() {
-        Purchases.shared.getCustomerInfo { (customerInfo, error) in
-            if let error = error {
-                print("Error fetching customer info: \(error.localizedDescription)")
-                return
-            }
-            
-            if let customerInfo = customerInfo {
-                self.isSubscribed = customerInfo.entitlements["Tip"]?.isActive == true
-            }
-        }
-    }
-    
     @ViewBuilder
     private func sheetView(for option: MenuOption) -> some View {
         switch option {
@@ -162,6 +153,7 @@ struct MenuButton: View {
     @Binding var isPressed: Bool
     @Binding var selectedOption: MenuOption?
     @Binding var isSheetPresented: Bool
+    @Binding var isSubscribed: Bool
     
     var body: some View {
         Menu {
@@ -177,7 +169,7 @@ struct MenuButton: View {
             //     Label("Provide Feedback", systemImage: "exclamationmark.bubble")
             // }
             
-            Button(action: { openSheet(.support) }) {
+            Button(action: { openSupportSheet() }) {
                 Label("Support App", systemImage: "wand.and.stars")
             }
             
@@ -207,6 +199,34 @@ struct MenuButton: View {
         selectedOption = option
         isSheetPresented.toggle()
     }
+    
+    // Handle Support sheet opening and subscription check
+        private func openSupportSheet() {
+            checkSubscriptionStatus { isActive in
+                self.isSubscribed = isActive
+                // Show the support sheet once subscription check is done
+                selectedOption = .support
+                isSheetPresented = true
+            }
+        }
+        
+        // Perform the subscription status check
+        private func checkSubscriptionStatus(completion: @escaping (Bool) -> Void) {
+            Purchases.shared.getCustomerInfo { (customerInfo, error) in
+                if let error = error {
+                    print("Error fetching customer info: \(error.localizedDescription)")
+                    completion(false)  // If error, assume not subscribed
+                    return
+                }
+                
+                if let customerInfo = customerInfo {
+                    let isActive = customerInfo.entitlements["Tip"]?.isActive == true
+                    completion(isActive)  // Return subscription status via completion handler
+                } else {
+                    completion(false)  // No customer info, assume not subscribed
+                }
+            }
+        }
 }
 
 enum MenuOption: Identifiable {
