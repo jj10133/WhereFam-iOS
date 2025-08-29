@@ -145,6 +145,8 @@ struct HomeView: View {
             } else {
                 PaywallView()
             }
+        case .about:
+            AboutView()
         }
     }
 }
@@ -181,6 +183,10 @@ struct MenuButton: View {
                 Link(destination: reviewURL) {
                     Label("Rate App", systemImage: "link")
                 }
+            }
+            
+            Button(action: { openSheet(.about) }) {
+                Label("About", systemImage: "info.circle")
             }
             
         } label: {
@@ -230,7 +236,7 @@ struct MenuButton: View {
 }
 
 enum MenuOption: Identifiable {
-    case people, shareID, support
+    case people, shareID, support, about
     
     var id: String {
         switch self {
@@ -238,8 +244,8 @@ enum MenuOption: Identifiable {
             return "people"
         case .shareID:
             return "shareID"
-            // case .provideFeedback:
-            //     return "provideFeedback"
+        case .about:
+            return "about"
         case .support:
             return "support"
         }
