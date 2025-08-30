@@ -1,5 +1,3 @@
-[![Chat](https://img.shields.io/badge/Chat-Download%20Keet-blue)](pear://keet/yfou1k336h5ieixwah4qjxsbx1x889fnefmfkr3o6e5amwfqqjy343qk8ze35f8mbtu4podrmpqm3tqfnc1a3xphpe5btjsinxurjsq17omodj3jne9ho3xmh5g6gqkhtu1gq5uhk1mt9x88a9q1jgfhbumanye)
-
 <p align="center">
   <img src="images/Logo.png" alt="Image 1" width="400" />
   <img src="images/Mobile.png" alt="Image 2" width="200" />
@@ -14,6 +12,13 @@ The goal of the project is to enable real-time location sharing without relying 
 - [ ] Location History
 - [ ] Local Roadside Assitance
 - [ ] SOS alerts / Emergency services
+
+## Chat
+- Download [Keet](https://keet.io)
+ 
+```plaintext
+pear://keet/yfou1k336h5ieixwah4qjxsbx1x889fnefmfkr3o6e5amwfqqjy343qk8ze35f8mbtu4podrmpqm3tqfnc1a3xphpe5btjsinxurjsq17omodj3jne9ho3xmh5g6gqkhtu1gq5uhk1mt9x88a9q1jgfhbumanye
+```
 
 ## Building
 - [ ] Clone the project
