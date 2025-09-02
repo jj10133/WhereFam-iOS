@@ -3,6 +3,13 @@
   <img src="images/Mobile.png" alt="Image 2" width="200" />
 </p>
 
+<div align="center">
+  <a href="https://apps.apple.com/us/app/wherefam/id6749550634?itscg=30200&itsct=apps_box_badge&mttnsubad=6749550634" style="display: inline-block;">
+    <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1756684800" alt="Download on the App Store" style="width: 120px; height: 52px; vertical-align: middle; object-fit: contain;" />
+  </a>
+</div>
+
+
 ## About
 The goal of the project is to enable real-time location sharing without relying on the cloud, utilizing a peer-to-peer (P2P) connection instead!! This was possible due to hard work of [Holepunch](https://holepunch.to/) Team ([Mathias](https://github.com/mafintosh) huge credits to him for his dedication in P2P space, [Lord Kasper](https://github.com/kasperisager), [Sean](https://github.com/lejeunerenard) and sorry to others if I have forgotten to mention)
 
