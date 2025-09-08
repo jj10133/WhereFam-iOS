@@ -18,12 +18,13 @@ struct SecondPageView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding()
-                
+            
             
             TextField("Enter your name", text: $userName)
                 .padding(.horizontal)
                 .frame(height: 50)
-                .background(.white)
+                .background(Color(.systemBackground))
+                .foregroundColor(.primary)
                 .cornerRadius(25)
                 .overlay(
                     RoundedRectangle(cornerRadius: 25)
