@@ -97,6 +97,7 @@ struct HomeView: View {
     }
     
     private func joinPeersFromDatabase() {
+        ipcViewModel.refreshPeople()
         let savedPeople = SQLiteManager.shared.fetchAllPeople()
         
         if !savedPeople.isEmpty {
